@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/default.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        #{postManagedBean.currentOpenedPost.title}
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name="css/cssLayout.css"/>
+
+        <div class="p-grid p-justify-center" >
+            <div class="divpost" style="margin-top: 15px;">
+                <h:form id="form">
+                    <div class="p-grid viewpost" style="padding-right: 20px">
+                        <div class="p-col-1">
+                            <div class="booleanbuttonup">
+                                <p:selectBooleanButton styleClass="booleanbuttonup" value="#{postManagedBean.currentOpenedPostUpvote}" onLabel="" offLabel="" onIcon="pi pi-arrow-up" offIcon="pi pi-arrow-up" style="width:30px" disabled="#{userManagedBean.currentUser == null}">
+                                    <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}" />
+                                    <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                    <p:ajax listener="#{postManagedBean.upvote}" update=":form"/>
+                                </p:selectBooleanButton>
+                            </div>
+                            <div class="numofvotes">
+                                #{postManagedBean.numOfVotes}
+                            </div>
+
+                            <div class="booleanbuttondown">
+                                <p:selectBooleanButton styleClass="booleanbuttondown" value="#{postManagedBean.currentOpenedPostDownvote}" onLabel="" offLabel="" onIcon="pi pi-arrow-down" offIcon="pi pi-arrow-down" style="width:30px" disabled="#{userManagedBean.currentUser == null}">
+                                    <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}" />
+                                    <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                    <p:ajax listener="#{postManagedBean.downvote}" update=":form"/>
+                                </p:selectBooleanButton>
+                            </div>
+                        </div>
+
+
+                        <div class="p-col-11">
+                            <h:outputText value="#{postManagedBean.currentOpenedPost.community.communityName} - " style="font-family: Arial; font-size: 12px" rendered="#{postManagedBean.currentOpenedPost.community != null}"/>
+                            <h:outputText value="Posted by u/#{postManagedBean.currentOpenedPost.user.username} #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.timeOfPost)}" style="font-family: Arial; font-size: 12px"/>
+                            <br/>
+                            <h:outputText value="#{postManagedBean.currentOpenedPost.title}" style="font-weight: bold; font-size: 20px; font-family: Arial"/>
+                            <h:outputText value="#{postManagedBean.currentOpenedPost.body}" escape="false" style="font-family: Arial"/>
+
+                            <div class="p-grid">
+                                <div class="p-col-4">
+                                    <i class="pi pi-comment"></i> <h:outputText value="#{postManagedBean.currentOpenedPost.comments.size()} comments" style="font-family: Arial"/>
+                                </div>
+                                <div class="p-col-4 p-offset-4">
+                                    <p:commandLink  action="/authoriseduser/editPost.xhtml?faces-redirect=true" style="text-decoration: none; margin-right: 15px; color: #000000;" class="hoverbutton" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
+                                        <i class="pi pi-pencil"></i> <h:outputText value="Edit"/>
+                                    </p:commandLink>
+                                    <p:commandLink action="#{postManagedBean.deletePost()}" style="text-decoration: none; margin-right: 10px; color: #000000;" class="hoverbutton" update=":form" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
+                                        <i class="pi pi-times"></i><h:outputText value="Remove"/>
+                                        <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                        <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}" />
+                                    </p:commandLink>
+                                </div>
+                            </div>
+
+                            <br/>
+                            <h:outputText value="Comment as #{userManagedBean.currentUser.username}" style="font-family: Arial" rendered="#{userManagedBean.currentUser != null}"/>
+                            <br/>
+                            <p:inputTextarea rows="2" cols="75" placeholder="What are you thoughts?" value="#{postManagedBean.comment}" rendered="#{userManagedBean.currentUser != null}"/>
+                            <br/>
+                            <p:commandButton value="Submit" action="#{postManagedBean.submitComment}" update=":form" rendered="#{userManagedBean.currentUser != null}">
+                                <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}"/>
+                                <f:param name="userid" value="#{userManagedBean.currentUser.id}"/>
+                            </p:commandButton>
+                            <br/><br/>
+
+                            <p:separator/>
+
+                            <p:dataScroller value="#{postManagedBean.comments}" var="comment">
+                                <div class="borderbottom">
+                                    <div class="font12">
+                                        <strong>#{comment.user.username}</strong> - #{miscManagedBean.getElapsedTime(comment.timeOfComment)}
+                                    </div>
+                                    <h:outputText value="#{comment.text}" escape="false"/>
+                                    <br/>
+                                    <div class="p-grid">
+                                        <div class="p-col-1">
+                                            <p:commandLink value="Edit"  oncomplete="PF('dlg4').show();" action="#{postManagedBean.passCommentId}" update=":form" rendered="#{userManagedBean.currentUser != null and comment.user.id == userManagedBean.currentUser.id}">
+                                                <f:param name="commentid" value="#{comment.id}"/>
+                                            </p:commandLink>
+                                        </div>
+                                        <div class="p-col-11">
+                                            <p:inplace id="ajax" label="Reply" rendered="#{userManagedBean.currentUser != null and comment.replyComment == null}">
+                                                <br/>
+                                                <p:inputTextarea rows="5" cols="50" value="#{postManagedBean.replyCommentText}" placeholder="What are your thoughts?"/>
+                                                <br/>
+                                                <p:commandButton value="Submit" action="#{postManagedBean.replyComment}" update=":form">
+                                                    <f:param name="commentid" value="#{comment.id}"/>
+                                                    <f:param name="userid" value="#{userManagedBean.currentUser.id}"/>
+                                                    <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}"/>
+                                                </p:commandButton>
+                                            </p:inplace>
+
+
+                                            <div>
+                                                <div class="font12">
+                                                    <h:outputText styleClass="pi pi-reply" rendered="#{comment.replyComment != null}"></h:outputText>
+                                                    <h:outputText value="#{comment.replyComment.user.username}" style="font-weight: bold" rendered="#{comment.replyComment != null}"/>
+                                                    <h:outputText value="- #{miscManagedBean.getElapsedTime(comment.replyComment.timeOfComment)}" rendered="#{comment.replyComment != null}"/>
+                                                </div>
+                                                <h:outputText value="#{comment.replyComment.text}" escape="false" rendered="#{comment.replyComment != null}"/>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </p:dataScroller>
+                            <p:dialog header="Edit Comment" widgetVar="dlg4" minHeight="40">
+                                <p:inputTextarea rows="5" cols="50" value="#{postManagedBean.currentComment.text}" />
+                                <br/>
+                                <p:commandButton value="Save Changes" action="#{postManagedBean.editComment}" update=":form">
+                                    <f:param name="commentid" value="#{comment.id}"/>
+                                    <f:param name="userid" value="#{userManagedBean.currentUser.id}"/>
+                                </p:commandButton>
+                                <p:commandButton value="Cancel" onclick="PF('dlg4').hide();"/>
+                            </p:dialog>
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+            <div class="divcomm">
+                <h:form id="createcommform">
+                    <p:growl id="growl" showDetail="true" sticky="true" />
+
+                    <p:panel header="u/#{postManagedBean.currentOpenedPost.community.communityName}" style="margin-bottom:20px;" rendered="#{postManagedBean.currentOpenedPost.community != null}">
+                        <h:panelGrid columns="1" cellpadding="7">
+                            Created #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.community.creationDate)}
+                            <br/>
+                            #{postManagedBean.currentOpenedPost.community.posts.size()} posts
+                            <br/>
+                            #{postManagedBean.currentOpenedPost.community.users.size()} members
+                            <br/>
+                        </h:panelGrid>
+                    </p:panel>
+
+                    <p:panel header="u/#{postManagedBean.currentOpenedPost.user.username}" style="margin-bottom:20px;">
+                        <p:link outcome="otheruserprofile" style="text-decoration: none; color: #000000;" class="hoverbutton">
+                            <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
+                            <h:panelGrid columns="1" cellpadding="7">
+                                <br/>
+                                Joined #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.user.joinDate)}
+                                <br/>
+                                #{postManagedBean.currentOpenedPost.user.posts.size()} posts
+                                <br/>
+                            </h:panelGrid>
+                        </p:link>
+                    </p:panel>
+
+                    <p:separator/>
+                    <p:dataList value="#{userManagedBean.userCreatedCommunity}" var="community" type="ordered" style="margin-bottom:20px; background-color: #ffffff; padding-bottom: 7px;">
+                        <f:facet name="header">
+                            Communities Created
+                        </f:facet>
+                        <p:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                            <f:param name="communityid" value="#{community.id}" />
+                            <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
+                            <h:outputText value="r/#{community.communityName}"/>
+                        </p:commandLink>
+                    </p:dataList>
+
+                    <p:dataList value="#{userManagedBean.userJoinedCommunity}" var="community" type="ordered" style="margin-bottom:20px; background-color: #ffffff; padding-bottom: 7px;">
+                        <f:facet name="header">
+                            Communities Joined
+                        </f:facet>
+                        <p:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                            <f:param name="communityid" value="#{community.id}" />
+                            <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
+                            <h:outputText value="r/#{community.communityName}"/>
+                        </p:commandLink>
+                    </p:dataList>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

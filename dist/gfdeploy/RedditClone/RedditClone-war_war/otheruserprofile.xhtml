@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/default.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="title">
+        title
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name="css/primeflex.css"/>
+        <h:outputStylesheet name="css/cssLayout.css"/>
+        <f:metadata>
+            <f:viewParam name="userid" value="#{userManagedBean.userid}" />
+            <!-- load the selected customer -->
+            <f:event type="preRenderView" listener="#{userManagedBean.retrievePostsAndComByUserIdForOtherUser}"/>
+        </f:metadata>
+
+        <div class="p-grid p-justify-center">
+            <div class="divpost">
+                <div class="box">
+                    <h:form>
+                        <p:dataScroller value="#{userManagedBean.userPosts}" var="post" chunkSize="5">
+                            <div class="p-grid border">
+                                <div class="p-col-1">
+                                    <div class="booleanbuttonup">
+                                        <p:selectBooleanButton styleClass="booleanbuttonup" id="value1" value="true" onLabel="" offLabel="" onIcon="pi pi-arrow-up" offIcon="pi pi-arrow-up" style="width:30px;">
+                                            <f:param name="postid" value="#{post.id}" />
+                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            <p:ajax listener="#{postManagedBean.upvote}" />
+                                        </p:selectBooleanButton>
+                                    </div>
+                                    <div class="numofvotes">
+                                        #{post.numOfVotes}
+                                    </div>
+                                    <div class="booleanbuttondown">
+                                        <p:selectBooleanButton styleClass="booleanbuttondown" id="value2" value="false" onLabel="" offLabel="" onIcon="pi pi-arrow-down" offIcon="pi pi-arrow-down" style="width:30px">
+                                            <p:ajax listener="#{postManagedBean.downvote}" />
+                                        </p:selectBooleanButton>
+                                    </div>
+                                </div>
+                                <div class="p-col-11">
+                                    <h:panelGrid columns="1" class="detail" cellpadding="5">
+                                        <p:commandLink action="#{postManagedBean.openPost}">
+                                            <f:param name="postid" value="#{post.id}" />
+                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            <div class="font12">
+                                                <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
+                                                <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                                - Posted by u/#{post.user.username}  #{miscManagedBean.getElapsedTime(post.timeOfPost)}
+                                            </div>
+                                            <h:outputText value="#{post.title}" style="font-weight: bold; font-size: 20px"/>
+                                            <h:outputText value="#{post.body}" escape="false"/>
+                                        </p:commandLink>
+                                    </h:panelGrid>
+                                </div>
+                            </div>
+                        </p:dataScroller>
+                    </h:form>
+                </div>
+            </div>
+            <div class="divcomm">
+                <div class="box">
+                    <h:form id="createcommform">
+                        <p:growl id="growl" showDetail="true" sticky="true" />
+                        <p:panel header="#{userManagedBean.otherUsers.username}" style="margin-bottom:20px">
+                            <h:panelGrid columns="1" cellpadding="7">
+                                Joined #{miscManagedBean.getElapsedTime(userManagedBean.otherUsers.joinDate)}
+                                <br/>
+                                #{userManagedBean.otherUsers.posts.size()} posts
+                            </h:panelGrid>
+                        </p:panel>
+
+                        <p:separator/>
+                        <p:dataList value="#{userManagedBean.userCreatedCommunity}" var="community" type="ordered" style="margin-bottom:20px; background-color: #ffffff; padding-bottom: 7px">
+                            <f:facet name="header">
+                                Communities Created
+                            </f:facet>
+                            <p:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                <f:param name="communityid" value="#{community.id}" />
+                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                <h:outputText value="r/#{community.communityName}"/>
+                            </p:commandLink>
+                        </p:dataList>
+
+                        <p:dataList value="#{userManagedBean.userJoinedCommunity}" var="community" type="ordered" style="background-color: #ffffff; padding-bottom: 7px">
+                            <f:facet name="header">
+                                Communities Joined
+                            </f:facet>
+                            <p:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                <f:param name="communityid" value="#{community.id}" />
+                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                <h:outputText value="r/#{community.communityName}"/>
+                            </p:commandLink>
+                        </p:dataList>
+                    </h:form>
+
+
+                    <p:dialog header="Create a new community" widgetVar="dlg2" modal="true" height="400" width="800">
+                        <h:form id="comform">
+                            <p:growl id="growl" showDetail="true" sticky="true" />
+                            <p:inputText size="78" required="true" requiredMessage="Community Name is Required" placeholder="Community Name" value="#{communityManagedBean.communityName}" id="comname"/>
+                            <p:message for="comname" styleClass="error"/>
+                            <br/>
+                            <p:inputTextarea rows="3" cols="81" counter="display" maxlength="300" counterTemplate="{1}/300."
+                                             placeholder="Description" value="#{communityManagedBean.description}" required="true" requiredMessage="Description is required" id="comdes"/>
+                            <p:message for="comdes" styleClass="error"/>
+
+                            <h:outputText id="display" />
+                            <br/><br/>
+                            <p:commandButton value="Create community" action="#{communityManagedBean.createCommunity}" update=":createcommform,comform" oncomplete="PF('dlg2').hide();">
+                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                            </p:commandButton>
+                        </h:form>
+                    </p:dialog>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

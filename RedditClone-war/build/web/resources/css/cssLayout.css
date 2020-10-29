@@ -1,0 +1,234 @@
+body {
+    margin: 0px;
+    background-color: #DAE0E6;
+}
+
+#top {
+    position: relative;
+    color: white;
+    height: 50px;
+    padding: 7px;
+    background-color: #ffffff;
+}
+
+#bottom {
+    position: relative;
+    background-color: #DAE0E6;
+    margin: 0px 0px 0px 0px;
+}
+
+#left {
+    float: left;
+    background-color: #DAE0E6;
+    width: 150px;
+}
+
+#right {
+    float: right;
+    background-color: #DAE0E6;
+    width: 150px;
+}
+
+.center_content {
+    position: relative;
+    background-color: #DAE0E6;
+}
+
+.left_content {
+    background-color: #DAE0E6;
+    margin-left: 170px;
+}
+
+.right_content {
+    background-color: #DAE0E6;
+    margin: 0px 170px 0px 170px;
+}
+
+#top a:link, #top a:visited {
+    color: white;
+    font-weight : bold;
+    text-decoration: none;
+}
+
+#top a:link:hover, #top a:visited:hover  {
+    color: black;
+    font-weight : bold;
+    text-decoration : none;
+}
+
+.divhidden {
+    display: none;
+}
+
+.custombutton {
+    padding: 0.3em 1em !important;
+    color: #4f4f4f !important;
+}
+
+.custombutton:hover {
+    background-color: #306fab;
+}
+
+.profileimgsize {
+    width: 150px;
+    height: 150px;
+}
+
+.detail {
+    width: 100%;
+    display: block;
+}
+
+.detail a {
+    display: block;
+    text-decoration: none;
+}
+
+.detail:hover {
+    background-color: #dddddd;
+}
+
+.ui-datascroller .ui-datascroller-item {
+    border: 1px solid #A8A8A8;
+    padding: 25px 10px;
+}
+
+.divpost {
+    width: 750px;
+    margin: 7px;
+}
+
+.divcomm {
+    width: 250px;
+    margin: 7px;
+}
+
+.divprofile {
+    width: 900px;
+    margin: 7px;
+}
+
+.ui-widget-content {
+    border: 0px;
+}
+
+/*header bar*/
+.navbar {
+    padding: 10px;
+}
+
+@font-face {
+    font-family: 'quicksandbold';
+    src: url('../fonts/quicksand-bold-webfont.woff2') format('woff2'),
+        url('../fonts/quicksand-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'quicksandlight';
+    src: url('quicksand-light-webfont.woff2') format('woff2'),
+        url('quicksand-light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'quicksandmedium';
+    src: url('quicksand-medium-webfont.woff2') format('woff2'),
+        url('quicksand-medium-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'quicksandregular';
+    src: url('quicksand-regular-webfont.woff2') format('woff2'),
+        url('quicksand-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.redditName {
+    font-family: "quicksandbold";
+    font-size: 23px;
+    text-decoration: none !important;
+}
+
+.booleanbuttonup .ui-state-default, .booleanbuttonup .ui-widget-content .ui-state-default{
+    background: #ffffff;
+    border: 0px;
+    color: #4f4f4f;
+    box-shadow: none;
+}
+
+.booleanbuttonup .ui-state-hover, .booleanbuttonup .ui-widget-content .ui-state-hover {
+    background: #ffffff;
+    border: 0px;
+    color: #D20005;
+    box-shadow: none;
+}
+
+.booleanbuttonup .ui-state-active, .booleanbuttonup .ui-widget-content .ui-state-active {
+    background: #ffffff;
+    border: 0px;
+    color: #D20005;
+    box-shadow: none;
+}
+
+.booleanbuttondown .ui-state-default, .booleanbuttondown .ui-widget-content .ui-state-default{
+    background: #ffffff;
+    border: 0px;
+    color: #4f4f4f;
+    box-shadow: none;
+}
+
+.booleanbuttondown .ui-state-hover, .booleanbuttondown .ui-widget-content .ui-state-hover {
+    background: #ffffff;
+    border: 0px;
+    color: #5973ff;
+    box-shadow: none;
+}
+
+.booleanbuttondown .ui-state-active, .booleanbuttondown .ui-widget-content .ui-state-active {
+    background: #ffffff;
+    border: 0px;
+    color: #5973ff;
+    box-shadow: none;
+}
+
+.numofvotes {
+    padding-left: 11px;
+}
+
+.font12 {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.border {
+    border: 1px;
+    border-style: solid;
+}
+
+.borderbottom {
+    border: 0px;
+    border-bottom: 1px;
+    border-style: dotted;
+}
+
+.viewpost {
+    background-color: #ffffff;
+}
+
+.hoverbutton:hover {
+    background-color: #dddddd;
+}
+
+.postpage {
+    margin-left: 20px;
+}
+
+h3 {
+    font-family: Arial;
+}

@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/default.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        /r/#{communityManagedBean.community.communityName}
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="p-grid p-justify-center">
+            <div class="divpost">
+                <h:form id="communityform">
+                    <h3>/r/#{communityManagedBean.community.communityName}</h3>
+
+                    <c:choose>
+                        <c:when test = "#{communityManagedBean.isSignedIn}">
+                            <c:choose>
+                                <c:when test = "#{communityManagedBean.isOwnerOfCommunity}">
+                                    <p:commandButton value="DELETE COMMUNITY" action="#{communityManagedBean}"/>
+                                </c:when>
+                                <c:when test = "#{!communityManagedBean.isOwnerOfCommunity}">
+                                    <c:choose>
+                                        <c:when test = "#{communityManagedBean.hasJoinedCommunity}">
+                                            <p:commandButton value="JOINED" action="#{communityManagedBean.leaveCommunity}" update=":communityform,communitytabform">
+                                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            </p:commandButton>
+                                        </c:when>
+                                        <c:when test = "#{!communityManagedBean.hasJoinedCommunity}">
+                                            <p:commandButton value="JOIN" action="#{communityManagedBean.joinCommunity}" update=":communityform,communitytabform">
+                                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            </p:commandButton>
+                                        </c:when>
+                                    </c:choose>
+                                </c:when>
+                            </c:choose>
+                        </c:when>
+                    </c:choose>
+
+
+                    <p:dataScroller value="#{communityManagedBean.posts}" var="post" chunkSize="5">
+                        <div class="p-grid border">
+                            <div class="p-col-1">
+                                <div class="booleanbuttonup">
+                                    <p:selectBooleanButton styleClass="booleanbuttonup" id="value1" value="true" onLabel="" offLabel="" onIcon="pi pi-arrow-up" offIcon="pi pi-arrow-up" style="width:30px;" disabled="#{userManagedBean.currentUser == null}">
+                                        <f:param name="postid" value="#{post.id}" />
+                                        <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                        <p:ajax listener="#{postManagedBean.upvote}" />
+                                    </p:selectBooleanButton>
+                                </div>
+                                <div class="numofvotes">
+                                    #{post.numOfVotes}
+                                </div>
+                                <div class="booleanbuttondown">
+                                    <p:selectBooleanButton styleClass="booleanbuttondown" id="value2" value="false" onLabel="" offLabel="" onIcon="pi pi-arrow-down" offIcon="pi pi-arrow-down" style="width:30px" disabled="#{userManagedBean.currentUser == null}">
+                                        <p:ajax listener="#{postManagedBean.downvote}" />
+                                    </p:selectBooleanButton>
+                                </div>
+                            </div>
+                            <div class="p-col-11">
+                                <h:panelGrid columns="1" class="detail" cellpadding="5">
+                                    <p:commandLink action="#{postManagedBean.openPost}">
+                                        <f:actionListener binding="#{userManagedBean.retrieveComByUserID()}"/>
+                                        <f:param name="postid" value="#{post.id}" />
+                                        <f:param name="userid" value="#{post.user.id}" />
+                                        <f:param name="currentuserid" value="#{userManagedBean.currentUser.id}" />
+                                        <div class="font12">
+                                            <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
+                                            <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                            - Posted by u/#{post.user.username} #{miscManagedBean.getElapsedTime(post.timeOfPost)}
+                                        </div>
+                                        <h:outputText value="#{post.title}" style="font-weight: bold; font-size: 20px"/>
+                                        <h:outputText value="#{post.body}" escape="false"/>
+                                    </p:commandLink>
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </p:dataScroller>
+                </h:form>
+            </div>
+            <div class="divcomm">
+                <div class="box">
+                    <h:form id="communitytabform">
+                        <p:panel id="basic" header="About Community" style="margin-bottom:20px">
+                            <h:panelGrid columns="1" cellpadding="7">
+                                #{communityManagedBean.community.description}
+                                <br/>
+                                <strong>#{communityManagedBean.community.users.size()} Members</strong>
+                                <p:separator/>
+                                Created #{miscManagedBean.getElapsedTime(communityManagedBean.community.creationDate)}
+                                <br/>
+                                <c:choose>
+                                    <c:when test = "#{communityManagedBean.isSignedIn}">
+                                        <p:commandButton value="CREATE POST" action="#{postManagedBean.opencreatepostpage}">
+                                        </p:commandButton>
+                                    </c:when>
+                                </c:choose>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

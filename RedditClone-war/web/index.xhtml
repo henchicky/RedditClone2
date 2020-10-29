@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/default.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        Reddit: the front page of the internet
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+        <div class="p-grid p-justify-center">
+            <div class="divpost">
+                <h:form>
+                    <p:dataScroller value="#{postManagedBean.allPosts}" var="post" chunkSize="5">
+                        <div class="p-grid border">
+                            <div class="p-col-1">
+                                <div class="booleanbuttonup">
+                                    <p:selectBooleanButton styleClass="booleanbuttonup" id="value1" value="true" onLabel="" offLabel="" onIcon="pi pi-arrow-up" offIcon="pi pi-arrow-up" style="width:30px;" disabled="#{userManagedBean.currentUser == null}">
+                                        <f:param name="postid" value="#{post.id}" />
+                                        <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                        <p:ajax listener="#{postManagedBean.upvote}" />
+                                    </p:selectBooleanButton>
+                                </div>
+                                <div class="numofvotes">
+                                    #{post.numOfVotes}
+                                </div>
+                                <div class="booleanbuttondown">
+                                    <p:selectBooleanButton styleClass="booleanbuttondown" id="value2" value="false" onLabel="" offLabel="" onIcon="pi pi-arrow-down" offIcon="pi pi-arrow-down" style="width:30px" disabled="#{userManagedBean.currentUser == null}">
+                                        <p:ajax listener="#{postManagedBean.downvote}" />
+                                    </p:selectBooleanButton>
+                                </div>
+                            </div>
+                            <div class="p-col-11">
+                                <h:panelGrid columns="1" class="detail" cellpadding="5">
+                                    <p:commandLink action="#{postManagedBean.openPost}">
+                                        <f:actionListener binding="#{userManagedBean.retrieveComByUserID()}"/>
+                                        <f:param name="postid" value="#{post.id}" />
+                                        <f:param name="userid" value="#{post.user.id}" />
+                                        <f:param name="currentuserid" value="#{userManagedBean.currentUser.id}" />
+                                        <div class="font12">
+                                            <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
+                                            <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                            - Posted by u/#{post.user.username}  #{miscManagedBean.getElapsedTime(post.timeOfPost)}
+                                        </div>
+                                        <h:outputText value="#{post.title}" style="font-weight: bold; font-size: 20px"/>
+                                        <h:outputText value="#{post.body}" escape="false"/>
+                                    </p:commandLink>
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </p:dataScroller>
+                </h:form>
+            </div>
+            <div class="divcomm">
+                <div class="box">
+                    <h:form>
+                        <p:dataList value="#{communityManagedBean.communities}" var="community" type="ordered" style="margin-bottom:20px; background-color: #ffffff; padding-bottom: 7px;">
+                            <f:facet name="header">
+                                Communities
+                            </f:facet>
+                            <p:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                <f:param name="communityid" value="#{community.id}" />
+                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                <h:outputText value="r/#{community.communityName}"/>
+                            </p:commandLink>
+                        </p:dataList>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

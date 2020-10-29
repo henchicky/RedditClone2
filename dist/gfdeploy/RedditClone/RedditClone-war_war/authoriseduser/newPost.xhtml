@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../layout/default.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="title">
+        Submit to Reddit
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="p-grid">
+            <div class="p-col-8">
+                <div class="box postpage">
+                    <c:choose>
+                        <c:when test = "#{!postManagedBean.fromUserBoard}">
+                            <h3>Create a post in r/#{communityManagedBean.community.communityName}</h3>
+                        </c:when>
+                        <c:when test = "#{postManagedBean.fromUserBoard}">
+                            <h3>Create a post u/#{userManagedBean.currentUser.username}</h3>
+                        </c:when>
+                    </c:choose>
+
+                    <h:form id="form">
+                        <p:inputTextarea rows="1" cols="100" counter="display" maxlength="300" counterTemplate="{1}/300."
+                                         placeholder="Title" value="#{postManagedBean.title}" required="true" requiredMessage="Title is required" id="title"/>
+                        <p:message for="title" styleClass="error" />
+                        <h:outputText id="display" />
+                        <br/><br/>
+
+                        <p:textEditor secure="false" widgetVar="editor1" value="#{postManagedBean.body}" height="300" style="margin-bottom:10px; background-color: white"/>
+
+                        <p:commandButton value="Submit" update=":form" action="#{postManagedBean.createNewPost}" icon="pi pi-save">
+                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                            <f:param name="communityid" value="#{communityManagedBean.community.id}"/>
+                        </p:commandButton>
+                        <p:commandButton value="Clear" type="button" onclick="PF('editor1').clear();" icon="pi pi-times" />
+                    </h:form>
+                </div>
+            </div>
+            <div class="p-col-4">
+                <div class="box">
+                    <c:choose>
+                        <c:when test = "#{postManagedBean.fromUserBoard}">
+                            <h:form>
+                                <p:panel header="#{userManagedBean.currentUser.username}" style="margin-bottom:20px; width: 250px">
+                                    <h:panelGrid columns="1" cellpadding="7">
+                                        Joined #{miscManagedBean.getElapsedTime(userManagedBean.currentUser.joinDate)}
+                                        <br/>
+                                        #{userManagedBean.retrieveNumOfPost()} posts
+                                    </h:panelGrid>
+                                </p:panel>
+                            </h:form>
+                        </c:when>
+
+                        <c:when test = "#{!postManagedBean.fromUserBoard}">
+                            <h:form>
+                                <p:panel id="basic" header="About Community" style="margin-bottom:20px; width: 250px">
+                                    <h:panelGrid columns="1" cellpadding="7">
+                                        #{communityManagedBean.community.description}
+                                        <br/>
+                                        <strong>#{communityManagedBean.community.users.size()} Members</strong>
+                                        <p:separator/>
+                                        Created #{miscManagedBean.getElapsedTime(communityManagedBean.community.creationDate)}
+                                        <br/>
+                                    </h:panelGrid>
+                                </p:panel>
+                            </h:form>
+                        </c:when>
+                    </c:choose>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

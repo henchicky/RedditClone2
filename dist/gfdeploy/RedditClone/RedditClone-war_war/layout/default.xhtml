@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+        <h:outputStylesheet name="css/primeflex.css"/>
+        <h:outputStylesheet name="css/cssLayout.css"/>
+        <title><ui:insert name="title">Title</ui:insert></title>
+    </h:head>
+
+    <h:body>
+        <div id="top" class="top">
+            <div class="p-grid">
+                <div class="p-col-2">
+                    <h:form>
+                        <h:commandLink action="#{postManagedBean.loadAllPost()}" styleClass="commandlinkstyle">
+                            <h:panelGrid columns="2">
+                                <p:graphicImage name="/image/redditLogo.png" width="35"/>
+                                <div class="redditName">
+                                    reddit
+                                </div>
+                            </h:panelGrid>
+                        </h:commandLink>
+                    </h:form>
+                </div>
+
+                <div class="p-col-10">
+                    <div class="p-grid p-justify-end navbar">
+                        <!--Login in dialog-->
+                        <h:form>
+                            <p:commandButton value="Login" type="button" onclick="PF('dlg1').show();" rendered="#{userManagedBean.isSignedOut}" icon="pi pi-sign-in"/>
+                        </h:form>
+                        <p:dialog header="Login" widgetVar="dlg1" modal="true" height="400" width="500">
+                            <h:form id="formlogin">
+                                <p:growl id="growl" showDetail="true" sticky="true" />
+                                <h:panelGroup>
+                                    Username: <p:inputText required="true" requiredMessage="Username is required"
+                                                           value="#{userManagedBean.username}" id="logemail"/>
+                                    <p:message for="logemail" styleClass="error" /><br/>
+                                </h:panelGroup>
+                                <h:panelGroup>
+                                    Password: <p:password required="true" requiredMessage="Password is required"
+                                                          value="#{userManagedBean.password}" id="logpassword"/>
+                                    <p:message for="logpassword" styleClass="error" /><br/>
+                                </h:panelGroup>
+                                <!-- using action instead of actionListener -->
+                                <p:commandButton value="Login"
+                                                 action="#{userManagedBean.login}"
+                                                 update=":formlogin"/>
+                            </h:form>
+                        </p:dialog>
+
+                        <!--Sign up dialog-->
+                        <h:form>
+                            <p:commandButton value="Sign Up" type="button" onclick="PF('dlg2').show();" rendered="#{userManagedBean.isSignedOut}" icon="pi pi-plus"/>
+                        </h:form>
+
+                        <p:dialog header="Sign Up" widgetVar="dlg2" modal="true" height="400" width="500">
+                            <!--using growl -->
+
+                            <h:form id="regform">
+                                <p:growl id="growl" showDetail="true" sticky="true" />
+                                <h:panelGroup>
+                                    Email <p:inputText required="true" requiredMessage="Email is required"
+                                                       value="#{userManagedBean.email}" id="regemail"/>
+                                    <p:message for="regemail" styleClass="error" /><br/>
+                                </h:panelGroup>
+
+                                <h:panelGroup>
+                                    Username: <p:inputText required="true" requiredMessage="Username is required"
+                                                           value="#{userManagedBean.username}" id="regusername"/>
+                                    <p:message for="regusername" styleClass="error" /><br/>
+                                </h:panelGroup>
+
+                                <h:panelGroup>
+                                    Password: <p:password required="true" requiredMessage="Password is required"
+                                                          value="#{userManagedBean.password}" id="regpassword"/>
+                                    <p:message for="regpassword" styleClass="error" /><br/>
+                                </h:panelGroup>
+
+                                <!-- using action instead of actionListener -->
+                                <p:commandButton value="Sign Up"
+                                                 action="#{userManagedBean.registerNewUser}"
+                                                 update=":regform"/>
+                            </h:form>
+                        </p:dialog>
+                        <!--User Profile Dropdown-->
+                        <h:form id="logoutform">
+                            <p:growl id="growl" showDetail="true" />
+                            <p:commandLink id="dynaButton" styleClass="ui-button ui-state-default ui-corner-all custombutton">
+                                <i class="pi pi-user"></i>
+                                #{userManagedBean.username}
+                                <i class="pi pi-sort-down"></i>
+                            </p:commandLink>
+                            <p:menu overlay="true" trigger="dynaButton" my="left top" at="left bottom" rendered="#{!userManagedBean.isSignedOut}">
+                                <p:submenu label="Hello #{userManagedBean.name}!">
+                                    <p:menuitem value="My profile" action="#{userManagedBean.getPostsAndComByUserId}" icon="pi pi-user"/>
+                                    <p:menuitem value="User Settings" action="/authoriseduser/usersetting.xhtml?faces-redirect=true" icon="pi pi-refresh"/>
+                                    <p:menuitem value="View All Communities" action="#{communityManagedBean.loadAllCommunity}" icon="pi pi-microsoft"/>
+                                </p:submenu>
+                                <p:separator />
+                                <p:menuitem value="Log out" action="#{userManagedBean.logout}" ajax="false" icon="pi pi-sign-out" update=":logoutform"/>
+                            </p:menu>
+
+                            <p:menu overlay="true" trigger="dynaButton" my="left top" at="left bottom" rendered="#{userManagedBean.isSignedOut}">
+                                <p:menuitem value="Login" onclick="PF('dlg1').show();" icon="pi pi-sign-in"/>
+                                <p:menuitem value="View All Communities" action="viewallcommunities.xhtml?faces-redirect=true" icon="pi pi-microsoft"/>
+                            </p:menu>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="center_content">
+            <ui:insert name="content">Content</ui:insert>
+        </div>
+
+    </h:body>
+</html>
