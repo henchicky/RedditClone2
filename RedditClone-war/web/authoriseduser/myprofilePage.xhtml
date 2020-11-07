@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../layout/defaulttemplate.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        u/#{userManagedBean.currentUser.username}
+    </ui:define>
+
+    <ui:define name="content">
+        <f:event type="preRenderView" listener="#{userManagedBean.getPostsAndComByUserId}"/>
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header p-2">
+                                <ul class="nav nav-pills">
+                                    <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Posts</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#setting" data-toggle="tab">Settings</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#changepassword" data-toggle="tab">Change Password</a></li>
+                                </ul>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <div class="active tab-pane" id="activity">
+                                        <h:form>
+                                            <c:if test="#{userManagedBean.userPosts.size() == 0}">
+                                                hmm... u/#{userManagedBean.currentUser.username} hasn't posted anything
+                                            </c:if>
+                                            <c:if test="#{userManagedBean.userPosts.size() != 0}">
+                                                <ui:repeat value="#{userManagedBean.userPosts}" var="post" >
+                                                    <div class="post clearfix">
+                                                        <div class="user-block">
+                                                            <img class="img-circle img-bordered-sm" src="#{request.contextPath}/profileimg/#{post.user.profileimgurl}" alt="#{request.contextPath}/profile/avatarlogo.png"/>
+                                                            <span class="username">
+                                                                <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
+                                                                <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                                            </span>
+                                                            <span class="description">Posted by u/#{post.user.username}  #{miscManagedBean.getElapsedTime(post.timeOfPost)}</span>
+                                                        </div>
+                                                        <h:commandLink class="post-black" action="#{postManagedBean.openPost}">
+                                                            <f:actionListener binding="#{userManagedBean.retrieveComByUserID()}"/>
+                                                            <f:param name="postid" value="#{post.id}" />
+                                                            <f:param name="userid" value="#{post.user.id}" />
+                                                            <f:param name="currentuserid" value="#{userManagedBean.currentUser.id}" />
+
+                                                            <h:outputText value="#{post.title}" style="font-weight: bold; font-size: 20px"/>
+                                                            <h:outputText value="#{post.body}" escape="false"/>
+                                                        </h:commandLink>
+
+                                                        <p>
+                                                            <h:commandLink class="thumbs-up text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" ><i class="far fa-thumbs-up mr-1"></i></h:commandLink>
+                                                                #{post.numOfVotes}
+                                                            <h:commandLink class="thumbs-down text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}"><i class="far fa-thumbs-down ml-1"></i></h:commandLink>
+                                                            <span class="float-right">
+                                                                <a href="#" class="link-black text-sm">
+                                                                    <i class="far fa-comments mr-1"></i> Comments (#{post.comments.size()})
+                                                                </a>
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                </ui:repeat>
+                                            </c:if>
+                                            <!-- Post -->
+
+                                            <!-- /.post -->
+                                        </h:form>
+                                    </div>
+                                    <!-- /.tab-pane -->
+                                    <div class="tab-pane" id="setting">
+
+                                        <h:form enctype="multipart/form-data" id="profileimgform">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <h4>Profile Image</h4>
+                                                    <img class="profile-user-img-large img-fluid img-circle" src="./../profileimg/#{userManagedBean.currentUser.profileimgurl}" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="exampleInputFile">Upload Profile Image</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group">
+                                                            <div class="input-group mb-3">
+                                                                <div class="custom-file">
+                                                                    <input type="file" class="custom-file-input" jsf:id="file" name="input"
+                                                                           jsf:value="#{userManagedBean.uploadedImage}" required="required"/>
+                                                                    <label class="custom-file-label" jsf:for="file" aria-describedby="inputGroupFileAddon02">Choose file</label>
+                                                                </div>
+                                                                <div class="input-group-append">
+                                                                    <h:commandButton id="inputGroupFileAddon02" class="input-group-text" actionListener="#{userManagedBean.save}" value="Upload"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-8">
+                                                    <h:inputFile value="#{userManagedBean.uploadedImage}"/>
+                                                    <br/>
+                                                    <h:commandButton class="input-group-text" actionListener="#{userManagedBean.save}" value="Upload"/>
+                                                </div>
+                                            </div>
+                                        </h:form>
+
+
+
+                                        <h:form class="form-horizontal" id="edituserform">
+                                            <br/>
+                                            <h:messages id="messages" showSummary="true" showDetail="true" globalOnly="true" style="color: green"/>
+
+                                            <div class="form-group row">
+                                                <h:outputLabel for="name" class="col-sm-2 col-form-label">Name</h:outputLabel>
+                                                <div class="col-sm-10">
+                                                    <h:inputText binding="#{updateName}"
+                                                                 value="#{userManagedBean.currentUser.name}" id="name" class="form-control #{updateName.valid ? '' :'is-invalid'}" />
+                                                    <h:message for="name" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="username" class="col-sm-2 col-form-label">Username</h:outputLabel>
+                                                <div class="col-sm-10">
+                                                    <h:inputText binding="#{updateUsername}" required="true" requiredMessage="Username is required"
+                                                                 value="#{userManagedBean.currentUser.username}" id="username" class="form-control #{updateUsername.valid ? '' :'is-invalid'}" />
+                                                    <h:message for="username" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="email" class="col-sm-2 col-form-label">Email</h:outputLabel>
+                                                <div class="col-sm-10">
+                                                    <h:inputText binding="#{updateEmail}" required="true" requiredMessage="Email is required"
+                                                                 value="#{userManagedBean.currentUser.email}" id="email" class="form-control #{updateEmail.valid ? '' :'is-invalid'}" />
+                                                    <h:message for="email" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <h:commandButton class="btn btn-primary float-right" value="Save Changes"
+                                                             action="#{userManagedBean.updateUser}" >
+                                                <f:ajax execute=":edituserform" render=":edituserform" />
+                                            </h:commandButton>
+                                        </h:form>
+                                    </div>
+                                    <!-- /.tab-pane -->
+
+                                    <div class="tab-pane" id="changepassword">
+                                        <h:form id="resetpasswordform" class="form-horizontal">
+                                            <h:messages id="messages" showSummary="true" showDetail="true" globalOnly="true" style="color: green"/>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="currentpassword" class="col-sm-2 col-form-label">Current Password</h:outputLabel>
+                                                <div class="col-sm-10">
+                                                    <h:inputSecret binding="#{currentpassword}" required="true" requiredMessage="Current Password is required"
+                                                                   value="#{userManagedBean.password}" id="currentpassword" class="form-control #{currentpassword.valid ? '' :'is-invalid'}"/>
+                                                    <h:message for="currentpassword" class="invalid-feedback"/>
+                                                    <h:message for="currentpassword" class="error" style="color: red"/>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="repeatpassword" class="col-sm-2 col-form-label">Repeat Password</h:outputLabel>
+                                                <div class="col-sm-10">
+                                                    <h:inputSecret binding="#{updateRepeatPassword}" required="true" requiredMessage="Repeat Password is required"
+                                                                   value="#{userManagedBean.newPassword}" id="repeatpassword" class="form-control #{updateRepeatPassword.valid ? '' :'is-invalid'}"/>
+                                                    <h:message for="repeatpassword" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <h:commandButton class="btn btn-primary float-right" value="Save Changes"
+                                                             action="#{userManagedBean.changePassword}">
+                                                <f:ajax execute=":resetpasswordform" render=":resetpasswordform" id="resetPasswordBtn"/>
+                                            </h:commandButton>
+                                        </h:form>
+                                    </div>
+                                    <!-- /.tab-pane -->
+                                </div>
+                                <!-- /.tab-content -->
+                            </div><!-- /.card-body -->
+                        </div>
+                        <!-- /.nav-tabs-custom -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-3">
+
+                        <!-- Profile Image -->
+                        <div class="card card-primary card-outline">
+                            <div class="card-body box-profile">
+                                <div class="text-center">
+                                    <img class="profile-user-img img-fluid img-circle"
+                                         src="./../profileimg/#{userManagedBean.currentUser.profileimgurl}"
+                                         alt="User profile picture"/>
+                                </div>
+
+                                <h:form>
+                                    <h3 class="profile-username text-center">#{userManagedBean.currentUser.name}</h3>
+
+                                    <p class="text-muted text-center">
+                                        Joined #{miscManagedBean.getElapsedTime(userManagedBean.currentUser.joinDate)}
+
+                                    </p>
+
+                                    <ul class="list-group list-group-unbordered mb-3">
+                                        <li class="list-group-item">
+                                            <b>Posts</b> <a class="float-right">#{userManagedBean.retrieveNumOfPost()} posts</a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Following</b> <a class="float-right">543</a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Friends</b> <a class="float-right">13,287</a>
+                                        </li>
+                                    </ul>
+                                </h:form>
+
+
+                                <h:form>
+                                    <h:commandButton value="New Post" action="#{postManagedBean.opencreatepostpage}" style="align-content: center; font-weight: bold" class="btn btn-primary btn-block">
+                                        <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                    </h:commandButton>
+                                    <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#staticBackdropCommunity"><b>New Community</b></button>
+                                </h:form>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+
+                        <!-- Modal New Community-->
+                        <div class="modal fade" id="staticBackdropCommunity" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">New community</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <h:form class="form-horizontal" id="comform">
+                                            <h:messages id="messages" showSummary="true" showDetail="true" globalOnly="true" style="color: green"/>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="communityname" class="col-sm-3 col-form-label">Community Name</h:outputLabel>
+                                                <div class="col-sm-9">
+                                                    <h:inputText binding="#{communityname}"  required="true" requiredMessage="Community Name is required"
+                                                                 value="#{communityManagedBean.communityName}" id="communityname" class="form-control #{communityname.valid ? '' :'is-invalid'}"/>
+                                                    <h:message for="communityname" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <h:outputLabel for="communitydescription" class="col-sm-3 col-form-label">Community Description</h:outputLabel>
+                                                <div class="col-sm-9">
+                                                    <h:inputTextarea binding="#{communitydescription}" required="true" requiredMessage="Community Description is required"
+                                                                     value="#{communityManagedBean.description}" id="communitydescription" class="form-control #{communitydescription.valid ? '' :'is-invalid'}"/>
+                                                    <h:message for="communitydescription" class="invalid-feedback" />
+                                                </div>
+                                            </div>
+                                            <h:commandButton class="btn btn-primary float-right" value="Create Community"
+                                                             action="#{communityManagedBean.createCommunity}" >
+                                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                                <!--<f:ajax execute=":comform" render=":comform" />-->
+                                            </h:commandButton>
+                                        </h:form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Communities Created -->
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Communities Created</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <h:form>
+                                    <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
+                                        <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                            <f:param name="communityid" value="#{community.id}" />
+                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            <h:outputText value="r/#{community.communityName}"/>
+                                        </h:commandLink>
+                                        <br/>
+                                    </ui:repeat>
+                                </h:form>
+
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+
+                        <!-- Communities Joined Box -->
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">Communities Joined</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <h:form>
+                                    <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
+                                        <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                            <f:param name="communityid" value="#{community.id}"/>
+                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                            <h:outputText value="r/#{community.communityName}"/>
+                                        </h:commandLink>
+                                        <br/>
+                                    </ui:repeat>
+                                </h:form>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </section>
+    </ui:define>
+
+    <ui:define name="script">
+    </ui:define>
+
+</ui:composition>

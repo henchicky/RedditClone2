@@ -27,7 +27,7 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest request1 = (HttpServletRequest) request;
 
         if (userManagedBean == null || userManagedBean.getCurrentUser() == null) {
-            //redirect to login page if user is not logged in and trying to access "authenticateduser/*" paths
+            //redirect to login page if user is not logged in and trying to access "authoriseduser/*" paths
             ((HttpServletResponse) response).sendRedirect(request1.getContextPath() + "/index.xhtml");
         } else {
             //authenticated - continue

@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -25,7 +26,7 @@ public class Post implements Serializable {
 
     @Column(nullable = false)
     private String title;
-    @Column(length = 0x7fa0)
+    @Lob
     private String body;
     private String imgURL;
     private String vidURL;

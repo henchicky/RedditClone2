@@ -7,13 +7,12 @@ import exception.InvalidLoginCredentialException;
 import exception.UnknownPersistenceException;
 import exception.UserNotFoundException;
 import exception.UsernameExistException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +25,7 @@ import javax.faces.application.FacesMessage;
 import javax.inject.Named;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
-import org.primefaces.model.file.UploadedFile;
+import javax.servlet.http.Part;
 import session.CommunitySessionBeanLocal;
 import session.PostSessionBeanLocal;
 import session.UserSessionBeanLocal;
@@ -50,8 +49,7 @@ public class UserManagedBean implements Serializable {
     private String email;
     private String password;
     private String newPassword;
-    private String profileimgurl = "avatar.png";
-    private UploadedFile uploadedfile;
+    private String profileimgurl;
     private boolean isSignedOut = true;
 
     private List<Post> userPosts = new ArrayList<>();
@@ -62,6 +60,8 @@ public class UserManagedBean implements Serializable {
     private UserEntity otherUsers;
     private List<Post> otherUsersPosts;
     private Long userid;
+
+    private Part uploadedImage;
 
     //private List<Comment> comments = new ArrayList<>();
     public UserManagedBean() {
@@ -77,6 +77,7 @@ public class UserManagedBean implements Serializable {
         userId = (long) -1;
         isSignedOut = true;
         currentUser = null;
+        profileimgurl = null;
     }
 
     public String login() {
@@ -85,23 +86,23 @@ public class UserManagedBean implements Serializable {
             currentUser = userSessionBean.userLogin(username, password);
             userId = currentUser.getId();
             email = currentUser.getEmail();
+            profileimgurl = currentUser.getProfileimgurl();
             if (currentUser.getName() != null) {
                 name = currentUser.getName();
             } else {
                 name = currentUser.getUsername();
             }
             isSignedOut = false;
-            //return "/secret/secret.xhtml?faces-redirect=true";
             userPosts = postSessionBeanLocal.getPostsByUserId(currentUser.getId());
             userJoinedCommunity = communitySessionBeanLocal.getUserJoinedCommunities(currentUser.getId());
             userCreatedCommunity = communitySessionBeanLocal.getUserCreatedCommunities(currentUser.getId());
             return "index.xhtml?faces-redirect=true";
         } catch (InvalidLoginCredentialException ex) {
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Invalid password. Please try again"));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Invalid password. Please try again"));
             setToNull();
             return "index.xhtml";
         } catch (Exception ex) {
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Username does not exist. Please create a new account!"));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Username does not exist. Please create a new account!"));
             setToNull();
             return "index.xhtml";
         }
@@ -113,6 +114,7 @@ public class UserManagedBean implements Serializable {
         newUser.setEmail(email);
         newUser.setUsername(username);
         newUser.setPassword(password);
+        newUser.setProfileimgurl("avatarlogo.png");
         newUser.setJoinDate(new Date());
 
         try {
@@ -122,11 +124,11 @@ public class UserManagedBean implements Serializable {
             return "index.xhtml?faces-redirect=true";
         } catch (UsernameExistException ex) {
             setToNull();
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Username or email already exist. Please use a different username or email."));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Username or email already exist. Please use a different username or email."));
             return "index.xhtml";
         } catch (UnknownPersistenceException ex) {
             setToNull();
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a problem register. Please try again."));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "There was a problem register. Please try again."));
             return "index.xhtml";
         } catch (Exception ex) {
             return "index.xhtml";
@@ -137,39 +139,61 @@ public class UserManagedBean implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         setToNull();
         context.addMessage(null, new FacesMessage("Success", "Logged out successfully"));
-        return "index.xhtml?faces-redirect=true";
+        return "/index.xhtml?faces-redirect=true";
     }
 
     /*upload profile image*/
     public void upload() throws IOException {
+//        ServletContext ctx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+//
+//        //get the deployment path
+//        String UPLOAD_DIRECTORY = ctx.getRealPath("/") + "profileimg/";
+//        System.out.println("#UPLOAD_DIRECTORY : " + UPLOAD_DIRECTORY);
+//
+//        //debug purposes
+//        setProfileimgurl(uploadedfile.getFileName());
+//        System.out.println("filename: " + uploadedfile.getFileName());
+//        //---------------------
+//
+//        //replace existing file
+//        Path path = Paths.get(UPLOAD_DIRECTORY + uploadedfile.getFileName());
+//        InputStream bytes = uploadedfile.getInputStream();
+//        Files.copy(bytes, path, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public void save() {
+        FacesContext context = FacesContext.getCurrentInstance();
         ServletContext ctx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        System.out.println("save methods called");
+        String fileName = Paths.get(uploadedImage.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+        System.out.println("filename: " + fileName);
 
         //get the deployment path
         String UPLOAD_DIRECTORY = ctx.getRealPath("/") + "profileimg/";
-        System.out.println("#UPLOAD_DIRECTORY : " + UPLOAD_DIRECTORY);
 
-        //debug purposes
-        setProfileimgurl(uploadedfile.getFileName());
-        System.out.println("filename: " + uploadedfile.getFileName());
-        //---------------------
+        setProfileimgurl(fileName);
 
-        //replace existing file
-        Path path = Paths.get(UPLOAD_DIRECTORY + uploadedfile.getFileName());
-        InputStream bytes = uploadedfile.getInputStream();
-        Files.copy(bytes, path, StandardCopyOption.REPLACE_EXISTING);
+        try (InputStream input = uploadedImage.getInputStream()) {
+            Files.copy(input, new File(UPLOAD_DIRECTORY, fileName).toPath());
+        } catch (IOException e) {
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, email.toString(), "Unable to update profile picture! Please try again!"));
+        }
+        currentUser.setProfileimgurl(profileimgurl);
+        userSessionBean.editProfile(currentUser);
+
     }
 
     public void updateUser() {
         FacesContext context = FacesContext.getCurrentInstance();
+        System.out.println("profile url = " + profileimgurl);
         currentUser.setProfileimgurl(profileimgurl);
-
         try {
             userSessionBean.editProfile(currentUser);
-            context.addMessage(null, new FacesMessage("Success", "Updated successfully"));
+            context.addMessage(null, new FacesMessage("", "Profile details updated successfully"));
 
         } catch (Exception e) {
             //show with an error icon
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Unable to update user"));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Unable to update user"));
         }
     }
 
@@ -177,20 +201,23 @@ public class UserManagedBean implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         if (!currentUser.getPassword().equals(password)) {
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Current password is invalid"));
+            System.out.println("wrong current password");
+            context.addMessage("resetpasswordform:currentpassword", new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Current password is invalid"));
             return;
         } else {
             currentUser.setPassword(newPassword);
             userSessionBean.changePassword(currentUser);
-            context.addMessage(null, new FacesMessage("Success", "Updated successfully"));
+            context.addMessage(null, new FacesMessage("", "Password updated successfully"));
         }
     }
 
     public String getPostsAndComByUserId() {
         userPosts = postSessionBeanLocal.getPostsByUserId(currentUser.getId());
+        System.out.println("usermanagedbean: " + userPosts.size());
         userJoinedCommunity = communitySessionBeanLocal.getUserJoinedCommunities(currentUser.getId());
+
         userCreatedCommunity = communitySessionBeanLocal.getUserCreatedCommunities(currentUser.getId());
-        return "/myprofile.xhtml?faces-redirect=true";
+        return "/authoriseduser/myprofilePage.xhtml?faces-redirect=true";
     }
 
     public void retrievePostsAndComByUserIdForOtherUser() {
@@ -315,20 +342,20 @@ public class UserManagedBean implements Serializable {
         this.profileimgurl = profileimgurl;
     }
 
+    public Part getUploadedImage() {
+        return uploadedImage;
+    }
+
+    public void setUploadedImage(Part uploadedImage) {
+        this.uploadedImage = uploadedImage;
+    }
+
     public Long getUserid() {
         return userid;
     }
 
     public void setUserid(Long userid) {
         this.userid = userid;
-    }
-
-    public UploadedFile getUploadedfile() {
-        return uploadedfile;
-    }
-
-    public void setUploadedfile(UploadedFile uploadedfile) {
-        this.uploadedfile = uploadedfile;
     }
 
     public boolean isIsSignedOut() {

@@ -7,6 +7,7 @@ import exception.UnknownPersistenceException;
 import exception.UserNotFoundException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import javax.faces.context.FacesContext;
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.primefaces.event.SelectEvent;
 import session.CommentSessionBeanLocal;
 import session.PostSessionBeanLocal;
 import session.UserSessionBeanLocal;
@@ -87,7 +87,10 @@ public class PostManagedBean implements Serializable {
         Map<String, String> params
                 = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         userid = Long.parseLong(params.get("userid"));
-        if (params.get("communityid") != null) {
+
+        System.out.println("userid = " + userid);
+        if (!params.get("communityid").equals("")) {
+            System.out.println("communityid = " + params.get("communityid"));
             communityid = Long.parseLong(params.get("communityid"));
         } else {
             communityid = (long) - 1;
@@ -102,10 +105,10 @@ public class PostManagedBean implements Serializable {
             postSessionBeanLocal.createPost(newPost, userid, communityid);
             userPosts = postSessionBeanLocal.getPostsByUserId(userid);
             setToNull();
-            return "/myprofile.xhtml?faces-redirect=true";
+            return "/authoriseduser/myprofilePage.xhtml?faces-redirect=true";
         } catch (UnknownPersistenceException ex) {
             setToNull();
-            return "/myprofile.xhtml?faces-redirect=true";
+            return "/authoriseduser/myprofilePage.xhtml?faces-redirect=true";
         }
     }
 
@@ -117,7 +120,7 @@ public class PostManagedBean implements Serializable {
         } else {
             fromUserBoard = true;
         }
-        return "authoriseduser/newPost.xhtml?faces-redirect=true";
+        return "/authoriseduser/newPost2.xhtml?faces-redirect=true";
     }
 
     public String getPostByPostId(long postId) {
@@ -143,25 +146,19 @@ public class PostManagedBean implements Serializable {
         return "/index.xhtml?faces-redirect=true";
     }
 
-    public void upvote() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long postID = Long.parseLong(params.get("postid"));
-        Long userID = Long.parseLong(params.get("userid"));
+    public void upvote(Long postID, Long userID) {
         System.out.println("postid = " + postID + ", userID = " + userID);
         numOfVotes = "" + postSessionBeanLocal.upvote(userID, postID);
         checkVoteStatus(postid, userid);
+        currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
         System.out.println("num of votes = " + numOfVotes);
     }
 
-    public void downvote() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long postID = Long.parseLong(params.get("postid"));
-        Long userID = Long.parseLong(params.get("userid"));
+    public void downvote(Long postID, Long userID) {
         System.out.println("postid = " + postID + ", userID = " + userID);
         numOfVotes = "" + postSessionBeanLocal.downvote(userID, postID);
         checkVoteStatus(postid, userid);
+        currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
         System.out.println("num of votes = " + numOfVotes);
     }
 
@@ -204,16 +201,16 @@ public class PostManagedBean implements Serializable {
         currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
         numOfVotes = "" + currentOpenedPost.getNumOfVotes();
         comments = currentOpenedPost.getComments();
-
-        return "viewPost.xhtml?faces-redirect=true";
+        Collections.reverse(comments);
+        return "/viewPost2.xhtml?faces-redirect=true";
     }
 
     public String saveEditPost() {
         try {
             postSessionBeanLocal.editPost(currentOpenedPost);
-            return "/viewPost.xhtml?faces-redirect=true";
+            return "/viewPost2.xhtml?faces-redirect=true";
         } catch (UnknownPersistenceException ex) {
-            return "/viewPost.xhtml?faces-redirect=true";
+            return "/viewPost2.xhtml?faces-redirect=true";
         }
     }
 
@@ -236,14 +233,18 @@ public class PostManagedBean implements Serializable {
         Comment newComment = new Comment();
         newComment.setTimeOfComment(new Date());
         newComment.setText(comment);
+        System.out.println("comment! " + newComment.getText());
         try {
             UserEntity currentUser = userSessionBeanLocal.retrieveUserById(userID);
             newComment.setUser(currentUser);
             commentSessionBeanLocal.createComment(postid, newComment);
-            Post currentCommentedPost = postSessionBeanLocal.getPostByPostID(postid);
-            comments = currentCommentedPost.getComments();
+            currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
+            comments = currentOpenedPost.getComments();
+            Collections.reverse(comments);
             setCommentToNull();
+            System.out.println("comment submitted! " + comments.size());
         } catch (UnknownPersistenceException | UserNotFoundException ex) {
+            System.out.println("comment error! " + comments.size());
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "There was a unknown error when creating comment. Please try again."));
         }
     }
@@ -270,6 +271,7 @@ public class PostManagedBean implements Serializable {
 
         Post currentCommentedPost = postSessionBeanLocal.getPostByPostID(postID);
         comments = currentCommentedPost.getComments();
+        Collections.reverse(comments);
         setCommentToNull();
     }
 
@@ -288,11 +290,6 @@ public class PostManagedBean implements Serializable {
         System.out.println("currentcommentid = " + currentCommentId);
         currentComment = commentSessionBeanLocal.getCommentByCommentId(currentCommentId);
         System.out.println(currentComment.getText());
-    }
-
-    public void onSelect(SelectEvent<String> event) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "select", event.getObject()));
     }
 
     public List<String> completeArea(String query) {

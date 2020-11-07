@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title><ui:insert name="title">Title</ui:insert></title>
+
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="#{request.contextPath}/plugins/fontawesome-free/css/all.min.css"/>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="#{request.contextPath}/dist/css/adminlte.css"/>
+
+        <!-- Summernote -->
+        <link rel="stylesheet" href="#{request.contextPath}/plugins/summernote/summernote-bs4.css"/>
+
+        <!-- Google Font: Source Sans Pro -->
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"/>
+    </h:head>
+
+    <h:body class="hold-transition layout-top-nav">
+        <div class="wrapper">
+            <!-- Navbar -->
+            <h:form>
+                <nav class="main-header navbar navbar-expand navbar-light navbar-white">
+                    <div class="container">
+                        <h:commandLink action="#{postManagedBean.loadAllPost()}" class="navbar-brand">
+                            <img src="#{request.contextPath}/dist/img/redditLogo.png" alt="Reddit Logo" class="brand-image img-circle elevation-3"
+                                 style="opacity: .8"/>
+                            <span class="brand-text font-weight-light">reddit</span>
+                        </h:commandLink>
+
+                        <!-- Right navbar links -->
+                        <ul class="navbar-nav ml-auto">
+
+                            <c:if test="#{userManagedBean.currentUser != null}">
+                                <li class="nav-item dropdown user-menu">
+                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                                        <img src="#{request.contextPath}/profileimg/#{userManagedBean.currentUser.profileimgurl}" class="user-image img-circle elevation-2" alt="User Image"/>
+                                        <span class="d-none d-md-inline">#{userManagedBean.username}</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                        <!-- User image -->
+                                        <li class="user-header bg-primary">
+                                            <img src="#{request.contextPath}/profileimg/#{userManagedBean.currentUser.profileimgurl}" class="img-circle elevation-2" alt="User Image"/>
+
+                                            <p>
+                                                #{userManagedBean.name}
+                                                <small>Joined #{miscManagedBean.getElapsedTime(userManagedBean.currentUser.joinDate)}</small>
+                                            </p>
+                                        </li>
+                                        <!-- Menu Footer-->
+                                        <li class="user-footer">
+                                            <h:commandLink action="#{userManagedBean.getPostsAndComByUserId}" class="btn btn-default btn-flat">Profile</h:commandLink>
+                                            <h:commandLink action="#{userManagedBean.logout}" class="btn btn-default btn-flat float-right">Sign Out</h:commandLink>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </c:if>
+                            <c:if test="#{userManagedBean.currentUser == null}">
+                                <li class="nav-item dropdown mr-3">
+                                    <button type="button" class="btn btn-block btn-outline-primary" data-toggle="modal" data-target="#staticBackdropLogin">LOG IN</button>
+                                </li>
+                                <li class="nav-item dropdown mr-3">
+                                    <button type="button" class="btn btn-block btn-primary" data-toggle="modal" data-target="#staticBackdropRegister">SIGN UP</button>
+                                </li>
+                                <li class="nav-item dropdown user-menu">
+                                    <button type="button" class="btn btn-block btn-outline-secondary nav-link" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="#">Action</a>
+                                        <a class="dropdown-item" href="#">Another action</a>
+                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    </div>
+                                </li>
+                            </c:if>
+
+                        </ul>
+                    </div>
+                </nav>
+            </h:form>
+            <!-- /.navbar -->
+
+            <!-- Modal Login-->
+            <div class="modal fade" id="staticBackdropLogin" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Login</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <h:form class="form-horizontal" id="loginform">
+                                <h:messages id="messages" showSummary="true" showDetail="true" globalOnly="true" style="color: red"/>
+                                <div class="form-group row">
+                                    <h:outputLabel for="logemail" class="col-sm-2 col-form-label">Username</h:outputLabel>
+                                    <div class="col-sm-10">
+                                        <h:inputText binding="#{logInputEmail}"  required="true" requiredMessage="Username is required"
+                                                     value="#{userManagedBean.username}" id="logemail" class="form-control #{logInputEmail.valid ? '' :'is-invalid'}"/>
+                                        <h:message for="logemail" class="invalid-feedback" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <h:outputLabel for="logpassword" class="col-sm-2 col-form-label">Password</h:outputLabel>
+                                    <div class="col-sm-10">
+                                        <h:inputSecret binding="#{logInputPassword}" required="true" requiredMessage="Password is required"
+                                                       value="#{userManagedBean.password}" id="logpassword" class="form-control #{logInputPassword.valid ? '' :'is-invalid'}"/>
+                                        <h:message for="logpassword" class="invalid-feedback" />
+                                    </div>
+                                </div>
+                                <h:commandButton class="btn btn-primary float-right" value="Login"
+                                                 action="#{userManagedBean.login}" >
+                                    <f:ajax execute=":loginform" render=":loginform" />
+                                </h:commandButton>
+                            </h:form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Register-->
+            <div class="modal fade" id="staticBackdropRegister" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Register</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <h:form class="form-horizontal" id="regform" >
+                                <h:messages id="messages" showSummary="true" showDetail="true" globalOnly="true" style="color: red"/>
+                                <div class="form-group row">
+                                    <h:outputLabel for="regemail" class="col-sm-2 col-form-label">Email</h:outputLabel>
+                                    <div class="col-sm-10">
+                                        <h:inputText binding="#{regInputEmail}" required="true" requiredMessage="Email is required"
+                                                     value="#{userManagedBean.email}" id="regemail"
+                                                     class="form-control #{regInputEmail.valid ? '' :'is-invalid'}"/>
+                                        <h:message for="regemail" class="invalid-feedback" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <h:outputLabel for="regusername" class="col-sm-2 col-form-label">Username</h:outputLabel>
+                                    <div class="col-sm-10">
+                                        <h:inputText binding="#{regInputUsername}" required="true" requiredMessage="Username is required"
+                                                     value="#{userManagedBean.username}" id="regusername"
+                                                     class="form-control #{regInputUsername.valid ? '' :'is-invalid'}"/>
+                                        <h:message for="regusername" class="invalid-feedback" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <h:outputLabel for="regpassword" class="col-sm-2 col-form-label">Password</h:outputLabel>
+                                    <div class="col-sm-10">
+                                        <h:inputSecret binding="#{regInputPassword}" required="true" requiredMessage="Password is required"
+                                                       value="#{userManagedBean.password}" id="regpassword"
+                                                       class="form-control #{regInputPassword.valid ? '' :'is-invalid'}"/>
+                                        <h:message for="regpassword" class="invalid-feedback" />
+                                    </div>
+                                </div>
+                                <h:commandButton class="btn btn-primary float-right"
+                                                 value="Register"
+                                                 action="#{userManagedBean.registerNewUser}"
+                                                 >
+                                    <f:ajax execute=":regform" render=":regform" />
+                                </h:commandButton>
+                            </h:form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+                <!-- /.content -->
+                <ui:insert name="content">Content</ui:insert>
+            </div>
+            <!-- /.content-wrapper -->
+        </div>
+
+        <!-- REQUIRED SCRIPTS -->
+        <!-- jQuery -->
+        <script src="#{request.contextPath}/plugins/jquery/jquery.min.js"></script>
+        <!-- Bootstrap 4 -->
+        <script src="#{request.contextPath}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- AdminLTE App -->
+        <script src="#{request.contextPath}/dist/js/adminlte.min.js"></script>
+        <!-- Summernote -->
+        <script src="#{request.contextPath}/plugins/summernote/summernote-bs4.min.js"></script>
+        <ui:insert name="script">Script</ui:insert>
+    </h:body>
+
+</html>

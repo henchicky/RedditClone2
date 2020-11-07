@@ -81,6 +81,7 @@ public class UserSessionBean implements UserSessionBeanLocal {
         if (editUser != null) {
             editUser.setEmail(u.getEmail());
             editUser.setName(u.getName());
+            editUser.setProfileimgurl(u.getProfileimgurl());
         } else {
             throw new NoResultException("No Result Found");
         }

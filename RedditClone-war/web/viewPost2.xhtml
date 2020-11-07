@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/defaulttemplate.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        #{postManagedBean.currentOpenedPost.title}
+    </ui:define>
+
+    <ui:define name="content">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-9">
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="post clearfix">
+                                    <h:form>
+                                        <div class="user-block">
+                                            <img class="img-circle img-bordered-sm" src="#{request.contextPath}/profileimg/#{postManagedBean.currentOpenedPost.user.profileimgurl}" alt="#{request.contextPath}/dist/img/avatarlogo.png"/>
+                                            <c:if test="#{postManagedBean.currentOpenedPost.community != null}">
+                                                <span class="username">
+                                                    <h:outputText value="r/#{postManagedBean.currentOpenedPost.community.communityName}"/>
+                                                </span>
+                                                <span class="description">Posted by u/#{postManagedBean.currentOpenedPost.user.username} - #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.timeOfPost)}</span>
+                                            </c:if>
+
+                                            <c:if test="#{postManagedBean.currentOpenedPost.community == null}">
+                                                <span class="username">
+                                                    <h:outputText value="Posted by u/#{postManagedBean.currentOpenedPost.user.username}"/>
+                                                </span>
+                                                <span class="description">#{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.timeOfPost)}</span>
+                                            </c:if>
+                                        </div>
+
+                                        <h:outputText value="#{postManagedBean.currentOpenedPost.title}" style="font-weight: bold; font-size: 20px"/>
+                                        <h:outputText value="#{postManagedBean.currentOpenedPost.body}" escape="false"/>
+                                    </h:form>
+
+                                    <h:form id="votingform">
+                                        <p>
+                                            <h:commandLink action="#{postManagedBean.upvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-up text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" ><i class="far fa-thumbs-up mr-1"></i>
+                                                <f:ajax execute=":votingform" render=":votingform"/>
+                                            </h:commandLink>
+
+                                            <c:if test="#{userManagedBean.currentUser == null}">
+                                                <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}"/>
+                                            </c:if>
+
+                                            <h:outputText class="thumbs-up text-sm thumbs-up-red" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 1}"/>
+
+                                            <h:outputText class="thumbs-up text-sm thumbs-down-blue" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == -1}"/>
+
+                                            <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 0}"/>
+
+                                            <h:commandLink action="#{postManagedBean.downvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-down text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}"><i class="far fa-thumbs-down ml-1 mr-3"></i>
+                                                <f:ajax execute=":votingform" render=":votingform"/>
+                                            </h:commandLink>
+
+                                            <h:commandLink action="/authoriseduser/editPost2.xhtml?faces-redirect=true" class="link-black text-sm mr-3" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
+                                                <i class="far fa-edit mr-1"></i> <h:outputText value="Edit"/>
+                                            </h:commandLink>
+
+                                            <h:commandLink action="#{postManagedBean.deletePost()}" class="link-black text-sm" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
+                                                <i class="fas fa-trash mr-1"></i><h:outputText value="Remove"/>
+                                                <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                                                <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}" />
+                                            </h:commandLink>
+
+                                            <span class="float-right text-sm">
+                                                <i class="far fa-comments mr-1"></i> Comments (#{postManagedBean.currentOpenedPost.comments.size()})
+                                            </span>
+                                        </p>
+                                    </h:form>
+
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <h:form id="commentingform">
+                                                <c:if test="#{userManagedBean.currentUser != null}">
+                                                    <h:outputText value="Comment as #{userManagedBean.currentUser.username}"/>
+                                                    <br/>
+                                                    <h:inputTextarea class="form-control form-control-sm mb-1" rows="2" cols="300" value="#{postManagedBean.comment}"/>
+
+                                                    <h:commandButton class="btn btn-primary" value="Submit" action="#{postManagedBean.submitComment}">
+                                                        <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}"/>
+                                                        <f:param name="userid" value="#{userManagedBean.currentUser.id}"/>
+                                                        <f:ajax execute="commentingform" render=":commentlistform commentingform votingform"/>
+                                                    </h:commandButton>
+                                                    <br/><br/>
+                                                </c:if>
+                                            </h:form>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer card-comments">
+                                        <h:form id="commentlistform">
+                                            <ui:repeat value="#{postManagedBean.comments}" var="comment">
+                                                <div class="card-comment">
+                                                    <!-- User image -->
+                                                    <img class="img-circle img-sm" src="#{request.contextPath}/profileimg/#{comment.user.profileimgurl}" alt="User Image"/>
+
+                                                    <div class="comment-text">
+                                                        <span class="username">
+                                                            #{comment.user.username}
+                                                            <span class="text-muted float-right">#{miscManagedBean.getElapsedTime(comment.timeOfComment)}</span>
+                                                        </span>
+                                                        #{comment.text}
+
+                                                        <!--reply comment-->
+                                                        <br/>
+                                                        <h:commandLink class="link-black text-sm">
+                                                            <i class="fas fa-reply mr-1"></i>Reply
+                                                        </h:commandLink>
+                                                        <h:commandLink class="link-black text-sm ml-3" rendered="#{userManagedBean.currentUser != null and comment.user.id == userManagedBean.currentUser.id}">
+                                                            <i class="far fa-edit mr-1"></i>Edit
+                                                        </h:commandLink>
+
+                                                        <h:inputTextarea class="form-control form-control-sm mb-1" rows="2" cols="300" value="#{postManagedBean.replyCommentText}" rendered="true"/>
+                                                        <h:commandButton class="btn btn-sm btn-primary" value="Reply" action="#{postManagedBean.replyComment}" rendered="true">
+                                                            <f:param name="commentid" value="#{comment.id}"/>
+                                                            <f:param name="userid" value="#{userManagedBean.currentUser.nmbid}"/>
+                                                            <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}"/>
+                                                            <f:ajax execute="commentlistform" render=":commentlistform"/>
+                                                        </h:commandButton>
+                                                        <h:commandButton class="btn btn-sm btn-secondary ml-1" value="Cancel" rendered="true"/>
+
+                                                        <c:if test="#{comment.replyComment != null}">
+                                                            <div class="comment-text">
+                                                                <span class="username">
+                                                                    #{comment.replyComment.user.username}
+                                                                    <span class="text-muted float-right">#{miscManagedBean.getElapsedTime(comment.replyComment.timeOfComment)}</span>
+                                                                </span>
+                                                                #{comment.replyComment.text}
+                                                            </div>
+                                                        </c:if>
+                                                    </div>
+                                                    <!-- /.comment-text -->
+
+                                                </div>
+                                                <!-- /.card-comment -->
+                                            </ui:repeat>
+                                        </h:form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <h:form id="createcommform">
+                            <c:if test="#{postManagedBean.currentOpenedPost.community != null}">
+                                <!-- Communities Info-->
+                                <div class="card card-primary">
+                                    <div class="card-header">
+                                        <h3 class="card-title">u/#{postManagedBean.currentOpenedPost.community.communityName}</h3>
+                                    </div>
+                                    <!-- /.card-header -->
+                                    <div class="card-body">
+                                        Created #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.community.creationDate)}
+                                        <br/>
+                                        #{postManagedBean.currentOpenedPost.community.posts.size()} posts
+                                        <br/>
+                                        #{postManagedBean.currentOpenedPost.community.users.size()} members
+                                        <br/>
+                                    </div>
+                                    <!-- /.card-body -->
+                                </div>
+                                <!-- /.card -->
+                            </c:if>
+
+
+                            <!-- Communities Info-->
+                            <div class="card card-primary">
+                                <h:commandLink>
+                                    <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
+                                    <div class="card-header">
+                                        <h3 class="card-title">u/#{postManagedBean.currentOpenedPost.user.username}</h3>
+                                    </div>
+                                    <!-- /.card-header -->
+                                    <div class="card-body">
+                                        Joined #{miscManagedBean.getElapsedTime(postManagedBean.currentOpenedPost.user.joinDate)}
+                                        <br/>
+                                        #{postManagedBean.currentOpenedPost.user.posts.size()} posts
+                                        <br/>
+                                    </div>
+                                </h:commandLink>
+                                <!-- /.card-body -->
+                            </div>
+                            <!-- /.card -->
+
+                            <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
+                                <f:facet name="header">
+                                    Communities Created
+                                </f:facet>
+                                <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                    <f:param name="communityid" value="#{community.id}" />
+                                    <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
+                                    <h:outputText value="r/#{community.communityName}"/>
+                                </h:commandLink>
+                            </ui:repeat>
+
+                            <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
+                                <f:facet name="header">
+                                    Communities Joined
+                                </f:facet>
+                                <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
+                                    <f:param name="communityid" value="#{community.id}" />
+                                    <f:param name="userid" value="#{postManagedBean.currentOpenedPost. user.id}" />
+                                    <h:outputText value="r/#{community.communityName}"/>
+                                    <br/>
+                                </h:commandLink>
+                            </ui:repeat>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+
+    <ui:define name="script">
+        script
+    </ui:define>
+
+</ui:composition>
