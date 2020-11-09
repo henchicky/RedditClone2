@@ -44,7 +44,7 @@
 
                                     <h:form id="votingform">
                                         <p>
-                                            <h:commandLink action="#{postManagedBean.upvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-up text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" ><i class="far fa-thumbs-up mr-1"></i>
+                                            <h:commandLink action="#{postManagedBean.upvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-up text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-up mr-1"></i>
                                                 <f:ajax execute=":votingform" render=":votingform"/>
                                             </h:commandLink>
 
@@ -58,7 +58,7 @@
 
                                             <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 0}"/>
 
-                                            <h:commandLink action="#{postManagedBean.downvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-down text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}"><i class="far fa-thumbs-down ml-1 mr-3"></i>
+                                            <h:commandLink action="#{postManagedBean.downvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-down text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-down ml-1 mr-3"></i>
                                                 <f:ajax execute=":votingform" render=":votingform"/>
                                             </h:commandLink>
 
@@ -121,10 +121,7 @@
                                                         </h:commandLink>
 
                                                         <h:inputTextarea class="form-control form-control-sm mb-1" rows="2" cols="300" value="#{postManagedBean.replyCommentText}" rendered="true"/>
-                                                        <h:commandButton class="btn btn-sm btn-primary" value="Reply" action="#{postManagedBean.replyComment}" rendered="true">
-                                                            <f:param name="commentid" value="#{comment.id}"/>
-                                                            <f:param name="userid" value="#{userManagedBean.currentUser.nmbid}"/>
-                                                            <f:param name="postid" value="#{postManagedBean.currentOpenedPost.id}"/>
+                                                        <h:commandButton class="btn btn-sm btn-primary" value="Reply" action="#{postManagedBean.replyComment(userManagedBean.currentUser.id, postManagedBean.currentOpenedPost.id, comment.id)}" rendered="true">
                                                             <f:ajax execute="commentlistform" render=":commentlistform"/>
                                                         </h:commandButton>
                                                         <h:commandButton class="btn btn-sm btn-secondary ml-1" value="Cancel" rendered="true"/>
@@ -140,7 +137,6 @@
                                                         </c:if>
                                                     </div>
                                                     <!-- /.comment-text -->
-
                                                 </div>
                                                 <!-- /.card-comment -->
                                             </ui:repeat>
@@ -173,7 +169,7 @@
                             </c:if>
 
 
-                            <!-- Communities Info-->
+                            <!-- User Info-->
                             <div class="card card-primary">
                                 <h:commandLink>
                                     <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
@@ -191,29 +187,6 @@
                                 <!-- /.card-body -->
                             </div>
                             <!-- /.card -->
-
-                            <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
-                                <f:facet name="header">
-                                    Communities Created
-                                </f:facet>
-                                <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
-                                    <f:param name="communityid" value="#{community.id}" />
-                                    <f:param name="userid" value="#{postManagedBean.currentOpenedPost.user.id}" />
-                                    <h:outputText value="r/#{community.communityName}"/>
-                                </h:commandLink>
-                            </ui:repeat>
-
-                            <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
-                                <f:facet name="header">
-                                    Communities Joined
-                                </f:facet>
-                                <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
-                                    <f:param name="communityid" value="#{community.id}" />
-                                    <f:param name="userid" value="#{postManagedBean.currentOpenedPost. user.id}" />
-                                    <h:outputText value="r/#{community.communityName}"/>
-                                    <br/>
-                                </h:commandLink>
-                            </ui:repeat>
                         </h:form>
                     </div>
                 </div>

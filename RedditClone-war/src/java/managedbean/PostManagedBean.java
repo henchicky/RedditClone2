@@ -14,9 +14,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -249,13 +249,7 @@ public class PostManagedBean implements Serializable {
         }
     }
 
-    public void replyComment() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long userID = Long.parseLong(params.get("userid"));
-        Long postID = Long.parseLong(params.get("postid"));
-        Long parentcommentid = Long.parseLong(params.get("commentid"));
-
+    public void replyComment(Long userID, Long postID, Long parentcommentid) {
         Comment replyComment = new Comment();
         replyComment.setTimeOfComment(new Date());
         replyComment.setText(replyCommentText);

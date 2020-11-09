@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import session.CommunitySessionBeanLocal;
 
 @Named(value = "communityManagedBean")
@@ -73,17 +73,12 @@ public class CommunityManagedBean implements Serializable {
         }
     }
 
-    public String openCommunity() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long communityid = Long.parseLong(params.get("communityid"));
+    public String openCommunity(Long communityid, Long userid) {
         System.out.println("communityid = " + communityid);
         community = communitySessionBeanLocal.getCommunityById(communityid);
         posts = community.getPosts();
         System.out.println("Num of posts = " + posts.size());
-        Long userid;
-        if (params.get("userid") != null) {
-            userid = Long.parseLong(params.get("userid"));
+        if (userid != null) {
             System.out.println("userid = " + userid);
             users = community.getUsers();
             checkOwnerOfCommunity(userid);
@@ -92,30 +87,27 @@ public class CommunityManagedBean implements Serializable {
         } else {
             isSignedIn = false;
         }
-        return "viewCommunity.xhtml?faces-redirect=true";
+        return "/viewCommunity2.xhtml?faces-redirect=true";
     }
 
-    public void joinCommunity() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long userid = Long.parseLong(params.get("userid"));
-        communitySessionBeanLocal.joinCommunity(community.getId(), userid);
+    public void joinCommunity(Long userID) {
+        communitySessionBeanLocal.joinCommunity(community.getId(), userID);
         community = communitySessionBeanLocal.getCommunityById(community.getId());
         users = community.getUsers();
-        hasJoinedCommunity(userid);
+        hasJoinedCommunity(userID);
     }
 
-    public void leaveCommunity() {
-        Map<String, String> params
-                = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        Long userid = Long.parseLong(params.get("userid"));
-        communitySessionBeanLocal.leaveCommunity(community.getId(), userid);
+    public void leaveCommunity(Long userID) {
+        communitySessionBeanLocal.leaveCommunity(community.getId(), userID);
         community = communitySessionBeanLocal.getCommunityById(community.getId());
         users = community.getUsers();
-        hasJoinedCommunity(userid);
+        hasJoinedCommunity(userID);
     }
 
     private void checkOwnerOfCommunity(Long userid) {
+        System.out.println("userid = " + userid);
+        System.out.println("community owner userid = " + users.get(0).getId());
+        System.out.println("are they the same = " + (users.get(0).getId() == userid));
         if (users.get(0).getId() == userid) {
             isOwnerOfCommunity = true;
         } else {

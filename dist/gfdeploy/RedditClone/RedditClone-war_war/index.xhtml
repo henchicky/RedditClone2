@@ -62,10 +62,8 @@
                                                         <f:ajax listener="#{postManagedBean.downvote(post.id, userManagedBean.currentUser.id)}" execute="@this" render=":votingform"/>
                                                     </h:commandLink>
 
-                                                    <span class="float-right">
-                                                        <a href="#" class="link-black text-sm">
-                                                            <i class="far fa-comments mr-1"></i> Comments (#{post.comments.size()})
-                                                        </a>
+                                                    <span class="float-right text-sm">
+                                                        <i class="far fa-comments mr-1"></i> Comments (#{postManagedBean.currentOpenedPost.comments.size()})
                                                     </span>
                                                 </p>
                                             </div>
@@ -77,20 +75,24 @@
                     </div>
                     <div class="col-md-3">
                         <h:form>
-                            <ui:repeat value="#{communityManagedBean.communities}" var="community">
-                                <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
-                                    <f:param name="communityid" value="#{community.id}" />
-                                    <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
-                                    <h:outputText value="r/#{community.communityName}"/>
-                                </h:commandLink>
-                                <br/>
-                            </ui:repeat>
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Communities</h3>
+                                </div>
+                                <div class="card-body">
+                                    <ui:repeat value="#{communityManagedBean.communities}" var="community">
+                                        <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                            <h:outputText value="r/#{community.communityName}"/>
+                                        </h:commandLink>
+                                        <br/>
+                                    </ui:repeat>
+                                </div>
+                            </div>
                         </h:form>
                     </div>
                 </div>
             </div>
         </section>
-
     </ui:define>
 
 

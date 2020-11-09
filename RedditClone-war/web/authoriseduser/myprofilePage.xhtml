@@ -45,7 +45,7 @@
                                                                 <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
                                                                 <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
                                                             </span>
-                                                            <span class="description">Posted by u/#{post.user.username}  #{miscManagedBean.getElapsedTime(post.timeOfPost)}</span>
+                                                            <span class="description">Posted by u/#{post.user.username} - #{miscManagedBean.getElapsedTime(post.timeOfPost)}</span>
                                                         </div>
                                                         <h:commandLink class="post-black" action="#{postManagedBean.openPost}">
                                                             <f:actionListener binding="#{userManagedBean.retrieveComByUserID()}"/>
@@ -70,9 +70,6 @@
                                                     </div>
                                                 </ui:repeat>
                                             </c:if>
-                                            <!-- Post -->
-
-                                            <!-- /.post -->
                                         </h:form>
                                     </div>
                                     <!-- /.tab-pane -->
@@ -108,8 +105,6 @@
                                                 </div>
                                             </div>
                                         </h:form>
-
-
 
                                         <h:form class="form-horizontal" id="edituserform">
                                             <br/>
@@ -202,13 +197,13 @@
 
                                     <ul class="list-group list-group-unbordered mb-3">
                                         <li class="list-group-item">
-                                            <b>Posts</b> <a class="float-right">#{userManagedBean.retrieveNumOfPost()} posts</a>
+                                            <b>Posts</b> <a class="float-right">#{userManagedBean.retrieveNumOfPost()}</a>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>Following</b> <a class="float-right">543</a>
+                                            <b>Communities Created</b> <a class="float-right">#{userManagedBean.userCreatedCommunity.size()}</a>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>Friends</b> <a class="float-right">13,287</a>
+                                            <b>Communities Joined</b> <a class="float-right">#{userManagedBean.userJoinedCommunity.size()}</a>
                                         </li>
                                     </ul>
                                 </h:form>
@@ -267,49 +262,49 @@
                             </div>
                         </div>
 
-                        <!-- Communities Created -->
-                        <div class="card card-primary">
-                            <div class="card-header">
-                                <h3 class="card-title">Communities Created</h3>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <h:form>
-                                    <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
-                                        <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
-                                            <f:param name="communityid" value="#{community.id}" />
-                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
-                                            <h:outputText value="r/#{community.communityName}"/>
-                                        </h:commandLink>
-                                        <br/>
-                                    </ui:repeat>
-                                </h:form>
+                        <c:if test="#{userManagedBean.userCreatedCommunity.size() != 0}">
+                            <!-- Communities Created -->
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Communities Created</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <h:form>
+                                        <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
+                                            <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                                <h:outputText value="r/#{community.communityName}"/>
+                                            </h:commandLink>
+                                            <br/>
+                                        </ui:repeat>
+                                    </h:form>
 
+                                </div>
+                                <!-- /.card-body -->
                             </div>
-                            <!-- /.card-body -->
-                        </div>
-                        <!-- /.card -->
+                            <!-- /.card -->
+                        </c:if>
 
-                        <!-- Communities Joined Box -->
-                        <div class="card card-primary">
-                            <div class="card-header">
-                                <h3 class="card-title">Communities Joined</h3>
+                        <c:if test="#{userManagedBean.userJoinedCommunity.size() != 0}">
+                            <!-- Communities Joined Box -->
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Communities Joined</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <h:form>
+                                        <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
+                                            <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                                <h:outputText value="r/#{community.communityName}"/>
+                                            </h:commandLink>
+                                            <br/>
+                                        </ui:repeat>
+                                    </h:form>
+                                </div>
+                                <!-- /.card-body -->
                             </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <h:form>
-                                    <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
-                                        <h:commandLink action="#{communityManagedBean.openCommunity}" style="text-decoration: none;">
-                                            <f:param name="communityid" value="#{community.id}"/>
-                                            <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
-                                            <h:outputText value="r/#{community.communityName}"/>
-                                        </h:commandLink>
-                                        <br/>
-                                    </ui:repeat>
-                                </h:form>
-                            </div>
-                            <!-- /.card-body -->
-                        </div>
+                        </c:if>
                         <!-- /.card -->
                     </div>
                     <!-- /.col -->
