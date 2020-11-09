@@ -8,18 +8,18 @@
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <ui:define name="title">
-        Reddit: the front page of the internet
+        reddit: the front page of the internet
     </ui:define>
 
     <ui:define name="content">
         <section class="content">
             <div class="container-fluid">
                 <c:if test="#{postManagedBean.allPosts.size() == 0}">
-                    Welcome to Reddit
+                    Welcome to reddit
                 </c:if>
                 <div class="row">
                     <div class="col-md-9">
-                        <h:form>
+                        <h:form id="allpostform">
                             <c:if test="#{postManagedBean.allPosts.size() != 0}">
                                 <div class="card">
                                     <div class="card-body">
@@ -28,8 +28,14 @@
                                                 <div class="user-block">
                                                     <img class="img-circle img-bordered-sm" src="#{request.contextPath}/profileimg/#{post.user.profileimgurl}" alt="#{request.contextPath}/profile/avatarlogo.png"/>
                                                     <span class="username">
-                                                        <h:outputText value="u/#{post.user.username}" style="font-weight: bold" rendered="#{post.community == null}"/>
-                                                        <h:outputText value="r/#{post.community.communityName}" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                                        <h:commandLink class="link-black">
+                                                            <f:param name="userid" value="#{post.user.id}" />
+                                                            <h:outputText value="u/#{post.user.username}" class="link-black" style="font-weight: bold" rendered="#{post.community == null}"/>
+                                                        </h:commandLink>
+
+                                                        <h:commandLink class="link-black" action="#{communityManagedBean.openCommunity(post.community.id, userManagedBean.currentUser.id)}">
+                                                            <h:outputText value="r/#{post.community.communityName}" class="link-black" style="font-weight: bold" rendered="#{post.community != null}"/>
+                                                        </h:commandLink>
                                                     </span>
                                                     <span class="description">Posted by u/#{post.user.username} - #{miscManagedBean.getElapsedTime(post.timeOfPost)}</span>
                                                 </div>
@@ -44,26 +50,26 @@
                                                 </h:commandLink>
 
                                                 <p>
-                                                    <h:commandLink  class="thumbs-up text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-up mr-1"></i>
-                                                        <f:ajax listener="#{postManagedBean.upvote(post.id, userManagedBean.currentUser.id)}" execute="@this" render=":votingform"/>
+                                                    <h:commandLink  class="thumbs-up text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" disabled="#{userManagedBean.currentUser == null}">
+                                                        <i class="far fa-thumbs-up mr-1"></i>
+                                                        #{post.listOfVoters.get(userManagedBean.currentUser.id) == 1 ? post.numOfVotes : ""}
+                                                        <f:ajax listener="#{postManagedBean.upvote(post.id, userManagedBean.currentUser.id)}" execute="@this" render=":allpostform"/>
                                                     </h:commandLink>
 
                                                     <c:if test="#{userManagedBean.currentUser == null}">
                                                         <h:outputText class="thumbs-up text-sm" value="#{post.numOfVotes}"/>
                                                     </c:if>
 
-                                                    <h:outputText class="thumbs-up text-sm thumbs-up-red" value="#{post.numOfVotes}" rendered="#{post.listOfVoters.get(userManagedBean.currentUser.id) == 1}"/>
+                                                    <h:outputText class="thumbs-up text-sm" value="#{post.numOfVotes}" rendered="#{userManagedBean.currentUser != null and post.listOfVoters.get(userManagedBean.currentUser.id) != 1 and post.listOfVoters.get(userManagedBean.currentUser.id) != -1}"/>
 
-                                                    <h:outputText class="thumbs-up text-sm thumbs-down-blue" value="#{post.numOfVotes}" rendered="#{post.listOfVoters.get(userManagedBean.currentUser.id) == -1}"/>
-
-                                                    <h:outputText class="thumbs-up text-sm" value="#{post.numOfVotes}" rendered="#{post.listOfVoters.get(userManagedBean.currentUser.id) == 0}"/>
-
-                                                    <h:commandLink class="thumbs-down text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-down ml-1 mr-3"></i>
-                                                        <f:ajax listener="#{postManagedBean.downvote(post.id, userManagedBean.currentUser.id)}" execute="@this" render=":votingform"/>
+                                                    <h:commandLink class="thumbs-down text-sm #{post.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}" disabled="#{userManagedBean.currentUser == null}">
+                                                        #{post.listOfVoters.get(userManagedBean.currentUser.id) == -1 ? post.numOfVotes : ""}
+                                                        <i class="far fa-thumbs-down ml-1 mr-3"></i>
+                                                        <f:ajax listener="#{postManagedBean.downvote(post.id, userManagedBean.currentUser.id)}" execute="@this" render=":allpostform"/>
                                                     </h:commandLink>
 
                                                     <span class="float-right text-sm">
-                                                        <i class="far fa-comments mr-1"></i> Comments (#{postManagedBean.currentOpenedPost.comments.size()})
+                                                        <i class="far fa-comments mr-1"></i> Comments (#{post.comments.size()})
                                                     </span>
                                                 </p>
                                             </div>
@@ -81,9 +87,11 @@
                                 </div>
                                 <div class="card-body">
                                     <ui:repeat value="#{communityManagedBean.communities}" var="community">
-                                        <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
-                                            <h:outputText value="r/#{community.communityName}"/>
+                                        <h:commandLink class="user-black" action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                            <h:outputText value="r/#{community.communityName}" style="font-weight: bold; font-size: 14px"/>
+                                            <br/>
                                         </h:commandLink>
+                                        <h:outputText value="#{community.users.size()} members" style="font-size: 14px;"/>
                                         <br/>
                                     </ui:repeat>
                                 </div>
@@ -97,6 +105,5 @@
 
 
     <ui:insert name="script">
-        <script></script>
     </ui:insert>
 </ui:composition>

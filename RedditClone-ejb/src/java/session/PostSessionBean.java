@@ -30,13 +30,13 @@ public class PostSessionBean implements PostSessionBeanLocal {
             System.out.println("postid = " + newPost.getId());
             System.out.println("userid = " + user.getId());
             newPost.setUser(user);
-            user.getPosts().add(newPost);
             newPost.getListOfVoters().put(userId, 0);
+            user.getPosts().add(newPost);
             if (communityId != -1) {
                 Community community = em.find(Community.class, communityId);
                 newPost.setCommunity(community);
                 community.getPosts().add(newPost);
-                System.out.println("postid = " + community.getId());
+                System.out.println("communityid = " + community.getId());
             }
             System.out.println("postid = " + newPost.getId());
             System.out.println("userid = " + user.getId());

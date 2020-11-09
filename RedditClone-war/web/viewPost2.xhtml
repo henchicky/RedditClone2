@@ -44,7 +44,9 @@
 
                                     <h:form id="votingform">
                                         <p>
-                                            <h:commandLink action="#{postManagedBean.upvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-up text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-up mr-1"></i>
+                                            <h:commandLink action="#{postManagedBean.upvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-up text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 ? '' :'thumbs-up-red'}" disabled="#{userManagedBean.currentUser == null}">
+                                                <i class="far fa-thumbs-up mr-1"></i>
+                                                #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 1 ? postManagedBean.currentOpenedPost.numOfVotes : ""}
                                                 <f:ajax execute=":votingform" render=":votingform"/>
                                             </h:commandLink>
 
@@ -52,17 +54,15 @@
                                                 <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}"/>
                                             </c:if>
 
-                                            <h:outputText class="thumbs-up text-sm thumbs-up-red" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 1}"/>
+                                            <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{userManagedBean.currentUser != null and postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != 1 and postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1}"/>
 
-                                            <h:outputText class="thumbs-up text-sm thumbs-down-blue" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == -1}"/>
-
-                                            <h:outputText class="thumbs-up text-sm" value="#{postManagedBean.currentOpenedPost.numOfVotes}" rendered="#{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == 0}"/>
-
-                                            <h:commandLink action="#{postManagedBean.downvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-down text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}" disabled="#{userManagedBean.currentUser == null}"><i class="far fa-thumbs-down ml-1 mr-3"></i>
+                                            <h:commandLink action="#{postManagedBean.downvote(postManagedBean.currentOpenedPost.id, userManagedBean.currentUser.id)}" class="thumbs-down text-sm #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) != -1 ? '' :'thumbs-down-blue'}" disabled="#{userManagedBean.currentUser == null}">
+                                                #{postManagedBean.currentOpenedPost.listOfVoters.get(userManagedBean.currentUser.id) == -1 ? postManagedBean.currentOpenedPost.numOfVotes : ""}
+                                                <i class="far fa-thumbs-down ml-1 mr-3"></i>
                                                 <f:ajax execute=":votingform" render=":votingform"/>
                                             </h:commandLink>
 
-                                            <h:commandLink action="/authoriseduser/editPost2.xhtml?faces-redirect=true" class="link-black text-sm mr-3" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
+                                            <h:commandLink action="/authoriseduser/editPost.xhtml?faces-redirect=true" class="link-black text-sm mr-3" rendered="#{userManagedBean.currentUser != null and userManagedBean.currentUser.id == postManagedBean.currentOpenedPost.user.id}">
                                                 <i class="far fa-edit mr-1"></i> <h:outputText value="Edit"/>
                                             </h:commandLink>
 

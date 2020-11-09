@@ -29436,7 +29436,8 @@ a.text-muted:hover {
 }
 
 .link-black:hover, .link-black:focus {
-    color: #e6e8ea;
+    color: #6c757d;
+    text-decoration: underline;
 }
 
 .post-black {
@@ -29445,6 +29446,15 @@ a.text-muted:hover {
 
 .post-black:hover, .post-black:focus {
     color: #6c757d;
+}
+
+.user-black {
+    color: black;
+}
+
+.user-black:hover, .user-black:focus {
+    color: #6c757d;
+    text-decoration: underline;
 }
 
 .thumbs-up {

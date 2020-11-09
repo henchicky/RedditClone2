@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,8 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
-import javax.inject.Named;
 import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 import session.CommunitySessionBeanLocal;
@@ -213,6 +214,7 @@ public class UserManagedBean implements Serializable {
 
     public String getPostsAndComByUserId() {
         userPosts = postSessionBeanLocal.getPostsByUserId(currentUser.getId());
+        Collections.reverse(userPosts);
         System.out.println("usermanagedbean: " + userPosts.size());
         userJoinedCommunity = communitySessionBeanLocal.getUserJoinedCommunities(currentUser.getId());
 
@@ -231,6 +233,7 @@ public class UserManagedBean implements Serializable {
             Logger.getLogger(UserManagedBean.class.getName()).log(Level.SEVERE, null, ex);
         }
         userPosts = postSessionBeanLocal.getPostsByUserId(userid);
+        Collections.reverse(userPosts);
         userJoinedCommunity = communitySessionBeanLocal.getUserJoinedCommunities(userid);
         userCreatedCommunity = communitySessionBeanLocal.getUserCreatedCommunities(userid);
         //return "/otheruserprofile.xhtml?faces-redirect=true";

@@ -69,6 +69,7 @@ public class PostManagedBean implements Serializable {
     @PostConstruct
     public void init() {
         allPosts = postSessionBeanLocal.getAllPosts();
+        Collections.reverse(allPosts);
     }
 
     public void setToNull() {
@@ -120,7 +121,7 @@ public class PostManagedBean implements Serializable {
         } else {
             fromUserBoard = true;
         }
-        return "/authoriseduser/newPost2.xhtml?faces-redirect=true";
+        return "/authoriseduser/newPost.xhtml?faces-redirect=true";
     }
 
     public String getPostByPostId(long postId) {
@@ -132,7 +133,7 @@ public class PostManagedBean implements Serializable {
         imgURL = post.getImgURL();
         vidURL = post.getVidURL();
 
-        return "myprofile.xhtml?faces-redirect=true";
+        return "myprofilePage.xhtml?faces-redirect=true";
     }
 
     public String getPostsByCommunityId() {
@@ -151,6 +152,7 @@ public class PostManagedBean implements Serializable {
         numOfVotes = "" + postSessionBeanLocal.upvote(userID, postID);
         checkVoteStatus(postid, userid);
         currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
+        init();
         System.out.println("num of votes = " + numOfVotes);
     }
 
@@ -159,6 +161,7 @@ public class PostManagedBean implements Serializable {
         numOfVotes = "" + postSessionBeanLocal.downvote(userID, postID);
         checkVoteStatus(postid, userid);
         currentOpenedPost = postSessionBeanLocal.getPostByPostID(postid);
+        init();
         System.out.println("num of votes = " + numOfVotes);
     }
 
@@ -216,7 +219,7 @@ public class PostManagedBean implements Serializable {
 
     public String deletePost() {
         postSessionBeanLocal.deletePost(postid);
-        return "myprofile.xhtml/?faces-redirect=true";
+        return "myprofilePage.xhtml/?faces-redirect=true";
     }
 
     /*For comments of post*/

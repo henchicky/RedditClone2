@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/defaulttemplate.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="title">
+        All Communities
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form>
+            <ui:repeat value="#{communityManagedBean.communities}" var="community">
+                <h:commandLink action="#{communityManagedBean.openCommunity}">
+                    <f:param name="communityid" value="#{community.id}" />
+                    <f:param name="userid" value="#{userManagedBean.currentUser.id}" />
+                    <h:outputText value="r/#{community.communityName}" style="font-weight: bold"/>
+                </h:commandLink>
+                <br/>
+            </ui:repeat>
+        </h:form>
+    </ui:define>
+
+    <ui:define name="script">
+    </ui:define>
+
+</ui:composition>

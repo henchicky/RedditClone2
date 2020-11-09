@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./layout/defaulttemplate.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <ui:define name="title">
+        u/#{userManagedBean.otherUsers.username}
+    </ui:define>
+
+    <ui:define name="content">
+        <f:metadata>
+            <f:viewParam name="userid" value="#{userManagedBean.userid}" />
+            <!-- load the selected customer -->
+            <f:event type="preRenderView" listener="#{userManagedBean.retrievePostsAndComByUserIdForOtherUser}"/>
+        </f:metadata>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-9">
+                        Hello User
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">u/#{userManagedBean.otherUsers.username}</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                Joined #{miscManagedBean.getElapsedTime(userManagedBean.otherUsers.joinDate)}
+                                <br/>
+                                #{userManagedBean.otherUsers.posts.size()} posts
+                                <br/>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+
+                        <c:if test="#{userManagedBean.userCreatedCommunity.size() != 0}">
+                            <!-- Communities Created -->
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Communities Created</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <h:form>
+                                        <ui:repeat value="#{userManagedBean.userCreatedCommunity}" var="community">
+                                            <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                                <h:outputText value="r/#{community.communityName}"/>
+                                            </h:commandLink>
+                                            <br/>
+                                        </ui:repeat>
+                                    </h:form>
+
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                            <!-- /.card -->
+                        </c:if>
+
+                        <c:if test="#{userManagedBean.userJoinedCommunity.size() != 0}">
+                            <!-- Communities Joined Box -->
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title">Communities Joined</h3>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <h:form>
+                                        <ui:repeat value="#{userManagedBean.userJoinedCommunity}" var="community">
+                                            <h:commandLink action="#{communityManagedBean.openCommunity(community.id, userManagedBean.currentUser.id)}" style="text-decoration: none;">
+                                                <h:outputText value="r/#{community.communityName}"/>
+                                            </h:commandLink>
+                                            <br/>
+                                        </ui:repeat>
+                                    </h:form>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </c:if>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </ui:define>
+
+    <ui:define name="script">
+        script
+    </ui:define>
+
+</ui:composition>

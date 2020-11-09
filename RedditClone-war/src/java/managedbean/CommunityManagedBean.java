@@ -5,6 +5,7 @@ import entity.Post;
 import entity.UserEntity;
 import exception.UnknownPersistenceException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class CommunityManagedBean implements Serializable {
         System.out.println("communityid = " + communityid);
         community = communitySessionBeanLocal.getCommunityById(communityid);
         posts = community.getPosts();
+        Collections.reverse(posts);
         System.out.println("Num of posts = " + posts.size());
         if (userid != null) {
             System.out.println("userid = " + userid);
@@ -87,7 +89,7 @@ public class CommunityManagedBean implements Serializable {
         } else {
             isSignedIn = false;
         }
-        return "/viewCommunity2.xhtml?faces-redirect=true";
+        return "/viewCommunity.xhtml?faces-redirect=true";
     }
 
     public void joinCommunity(Long userID) {
